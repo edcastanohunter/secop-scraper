@@ -1,0 +1,126 @@
+@if (!auth.authenticated()) {
+  <section class="card mb-8 p-6 sm:p-8" aria-labelledby="welcome-title">
+    <h1 id="welcome-title" class="text-2xl font-semibold tracking-tight sm:text-3xl">
+      Encuentra licitaciones vigentes de tu sector, en tus municipios
+    </h1>
+    <p class="mt-3 max-w-2xl text-muted">
+      SECOP Radar reúne los procesos de compra pública y los contratos de SECOP I y SECOP II, los
+      ordena por municipio e industria y te avisa cuando aparece algo nuevo para ti.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <button type="button" class="btn-primary" (click)="auth.register()">Crear cuenta</button>
+      <button type="button" class="btn-secondary" (click)="auth.login('/')">Iniciar sesión</button>
+    </div>
+  </section>
+}
+
+<article class="max-w-3xl space-y-8 leading-relaxed">
+  <header>
+    @if (auth.authenticated()) {
+      <h1 class="text-2xl font-semibold tracking-tight">Acerca de los datos</h1>
+    } @else {
+      <h2 class="text-2xl font-semibold tracking-tight">Acerca de los datos</h2>
+    }
+    <p class="mt-2 text-muted">
+      De dónde salen los datos, cada cuánto se actualizan y qué puedes esperar de ellos.
+    </p>
+  </header>
+
+  <section aria-labelledby="fuente">
+    <h2 id="fuente" class="text-lg font-semibold">Fuente</h2>
+    <p class="mt-2">
+      Toda la información proviene de <strong>Colombia Compra Eficiente</strong>, a través de los
+      conjuntos de datos abiertos de
+      <a class="link" href="https://www.datos.gov.co" target="_blank" rel="noopener noreferrer"
+        >datos.gov.co</a
+      >:
+    </p>
+    <ul class="mt-2 list-disc space-y-1 ps-6">
+      <li>Procesos de contratación de SECOP II (<code>p6dx-8zbt</code>).</li>
+      <li>Contratos electrónicos de SECOP II (<code>jbjy-vk9h</code>).</li>
+      <li>Procesos de compra pública de SECOP I (<code>f789-7hwg</code>).</li>
+      <li>División político-administrativa DIVIPOLA del DANE (<code>gdxc-w37w</code>).</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="licencia">
+    <h2 id="licencia" class="text-lg font-semibold">Licencia</h2>
+    <p class="mt-2">
+      Los datos se publican bajo
+      <a
+        class="link"
+        href="https://creativecommons.org/licenses/by-sa/4.0/deed.es"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)</a
+      >. Si redistribuyes datos derivados, como una exportación CSV, deben conservar la atribución y
+      la misma licencia. El CSV que descargas desde aquí ya la incluye.
+    </p>
+  </section>
+
+  <section aria-labelledby="frecuencia">
+    <h2 id="frecuencia" class="text-lg font-semibold">Frecuencia de actualización</h2>
+    <ul class="mt-2 list-disc space-y-1 ps-6">
+      <li>Cada madrugada (hora de Colombia) se traen los cambios del día en los tres conjuntos.</li>
+      <li>
+        Los procesos abiertos de SECOP II se revisan además a las 6:00 y a las 13:00, para que los
+        cambios de estado y de fecha de cierre lleguen el mismo día.
+      </li>
+      <li>Cada domingo se hace una conciliación completa para corregir diferencias.</li>
+    </ul>
+    <p class="mt-2">
+      En cada listado verás “Datos actualizados al…”. Si un conjunto lleva más de 36 horas sin
+      actualizarse, aparece un aviso.
+    </p>
+  </section>
+
+  <section aria-labelledby="vigente">
+    <h2 id="vigente" class="text-lg font-semibold">¿Qué significa “vigente”?</h2>
+    <p class="mt-2">
+      Un proceso es <strong>vigente</strong> cuando está abierto, todavía no se ha adjudicado, es de
+      una modalidad competitiva (en la que cualquier proveedor puede presentar oferta) y su fecha de
+      cierre de ofertas aún no ha pasado. El cálculo lo hace el servidor con los datos de la fuente.
+    </p>
+  </section>
+
+  <section aria-labelledby="clasificacion">
+    <h2 id="clasificacion" class="text-lg font-semibold">Municipios e industrias</h2>
+    <p class="mt-2">
+      El municipio (código DIVIPOLA) y la industria son una <strong>clasificación propia</strong> de
+      SECOP Radar. La industria se deduce de los códigos UNSPSC del proceso. En el detalle de cada
+      proceso se muestra también el valor original que trae la fuente.
+    </p>
+  </section>
+
+  <section aria-labelledby="privacidad">
+    <h2 id="privacidad" class="text-lg font-semibold">Privacidad</h2>
+    <p class="mt-2">
+      En cumplimiento de la Ley 1581 de 2012, no se guardan cédulas de personas naturales,
+      representantes legales, cuentas bancarias, supervisores ni ordenadores del gasto. El nombre
+      del contratista sí se muestra, porque es información contractual pública (Ley 1712 de 2014).
+      Tu cuenta solo guarda tu nombre, tu correo y las búsquedas que decidas guardar.
+    </p>
+  </section>
+
+  <section aria-labelledby="limitaciones">
+    <h2 id="limitaciones" class="text-lg font-semibold">Limitaciones</h2>
+    <ul class="mt-2 list-disc space-y-1 ps-6">
+      <li>
+        Los datos son tan buenos como los que registran las entidades: hay fechas, montos o
+        ubicaciones vacías o mal escritas.
+      </li>
+      <li>
+        Algunos lugares no se pueden asociar a un municipio. Se muestran con el texto original
+        mientras se revisan.
+      </li>
+      <li>
+        Los documentos y el cronograma de SECOP II solo se obtienen del portal bajo demanda y pueden
+        no estar disponibles.
+      </li>
+      <li>
+        Ante cualquier duda, la información oficial es la del portal SECOP: cada proceso tiene un
+        enlace “Ver en SECOP”.
+      </li>
+    </ul>
+  </section>
+</article>
