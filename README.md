@@ -68,6 +68,38 @@ El estado (búsquedas guardadas, runs, alias, mapeos) vive en memoria: se reinic
 Por defecto Playwright usa el Chrome instalado (`channel: 'chrome'`). En CI, o si prefieres el
 navegador de Playwright: `npx playwright install chromium` y `PW_CHANNEL=chromium npm run e2e`.
 
+## Despliegue
+
+`.github/workflows/secop-radar-web.yml` corre lint, formato y tests en cada PR y push. En push a `main`
+(o ejecución manual) construye la imagen con podman en el runner, la envía al VPS por SSH
+(`podman load`, sin registry) y ejecuta `deploy/deploy.sh`. El contenedor `secop-radar.web` sirve el
+bundle con nginx en el puerto 8090, solo dentro de la red de nginx proxy manager (NPM).
+
+Configurar en GitHub, en Settings → Secrets and variables → Actions:
+
+| Tipo     | Nombre               | Obligatorio | Valor                                                                           |
+| -------- | -------------------- | ----------- | ------------------------------------------------------------------------------- |
+| Secret   | `VPS_HOST`           | Sí          | Host o IP del VPS.                                                              |
+| Secret   | `VPS_USER`           | Sí          | Usuario SSH del VPS (el que corre Podman rootless).                             |
+| Secret   | `VPS_SSH_KEY`        | Sí          | Llave privada SSH de deploy, sin passphrase.                                    |
+| Secret   | `TOKEN`              | Sí          | Token de GitHub con lectura de este repo (el VPS clona con él).                 |
+| Variable | `API_BASE_URL`       | Sí          | URL pública de la API, sin `/` final (p. ej. `https://api-secop.example.com`).  |
+| Variable | `KEYCLOAK_URL`       | Sí          | URL pública de Keycloak, sin `/realms/...` (p. ej. `https://auth.example.com`). |
+| Variable | `KEYCLOAK_REALM`     | No          | Realm. Por defecto `secopscrapper`.                                             |
+| Variable | `KEYCLOAK_CLIENT_ID` | No          | Cliente público con PKCE. Por defecto `secopscrapper-web`.                      |
+
+Las variables se incrustan en el bundle al compilar (el `Dockerfile` reemplaza los valores de
+`environment.ts`): cambiar una exige volver a desplegar.
+
+En el VPS, una sola vez:
+
+1. Copiar `deploy/.env.example` a `deploy/.env` (en `~/apps/secop-radar-web`) y completar `PROXY_NETWORK`.
+2. En NPM, apuntar el dominio de la web a `secop-radar.web:8090`.
+3. En Keycloak, agregar la URL de la web como redirect URI y web origin del cliente.
+4. En el `.env` del backend, usar esa URL en `Cors__AllowedOrigins__0` y `WebUi__BaseUrl`.
+
+Rollback: fijar `WEB_TAG=1.0.<n>` en `deploy/.env` y ejecutar `bash deploy/deploy.sh --force-restart`.
+
 ## Arquitectura
 
 ```

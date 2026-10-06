@@ -1,0 +1,111 @@
+# SECOP Radar (Web UI) — CI/CD, sin registry (mismo esquema que secopscrapper-api.yml del backend).
+# test: cada PR y push. build-ship-deploy: solo push a main (y ejecución manual).
+#   1. Construye la imagen en el runner (el VPS nunca compila: no compite por RAM/CPU con producción).
+#   2. La envía al VPS por SSH como tarball (podman save | ssh | podman load).
+#   3. Actualiza el clon de la app en el VPS y ejecuta deploy/deploy.sh.
+#
+# Secrets: VPS_HOST, VPS_USER, VPS_SSH_KEY (llave de deploy dedicada SIN passphrase), TOKEN (lectura del repo).
+# Variables del repo (Settings → Variables): API_BASE_URL, KEYCLOAK_URL; opcionales KEYCLOAK_REALM,
+# KEYCLOAK_CLIENT_ID. Angular las incrusta en el bundle al compilar, no se leen en tiempo de ejecución.
+name: secop-radar-web
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
+
+  build-ship-deploy:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # Los despliegues van uno tras otro; un push nuevo espera en vez de cancelar el que está en curso.
+    concurrency:
+      group: deploy-secop-radar-web
+      cancel-in-progress: false
+    env:
+      WEB_IMAGE: localhost/secop-radar-web
+      VERSION: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen (tag inmutable + latest)
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          KEYCLOAK_URL: ${{ vars.KEYCLOAK_URL }}
+          KEYCLOAK_REALM: ${{ vars.KEYCLOAK_REALM || 'secopscrapper' }}
+          KEYCLOAK_CLIENT_ID: ${{ vars.KEYCLOAK_CLIENT_ID || 'secopscrapper-web' }}
+        run: |
+          set -euo pipefail
+          [ -n "$API_BASE_URL" ] || { echo "::error::Falta la variable del repo API_BASE_URL"; exit 1; }
+          [ -n "$KEYCLOAK_URL" ] || { echo "::error::Falta la variable del repo KEYCLOAK_URL"; exit 1; }
+          podman build \
+            --build-arg API_BASE_URL="$API_BASE_URL" \
+            --build-arg KEYCLOAK_URL="$KEYCLOAK_URL" \
+            --build-arg KEYCLOAK_REALM="$KEYCLOAK_REALM" \
+            --build-arg KEYCLOAK_CLIENT_ID="$KEYCLOAK_CLIENT_ID" \
+            -t "$WEB_IMAGE:latest" -t "$WEB_IMAGE:$VERSION" .
+
+      - name: Guardar imagen
+        run: |
+          podman save -o secop-radar-web.tar "$WEB_IMAGE:latest" "$WEB_IMAGE:$VERSION"
+          gzip -f secop-radar-web.tar
+          ls -lh secop-radar-web.tar.gz
+
+      - name: Enviar imagen y desplegar en el VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          TOKEN: ${{ secrets.TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          key_file="$(mktemp)"
+          trap 'rm -f "$key_file"' EXIT
+          install -m 600 /dev/null "$key_file"
+          printf '%s\n' "$VPS_SSH_KEY" > "$key_file"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh_vps() { ssh -i "$key_file" -o BatchMode=yes "$VPS_USER@$VPS_HOST" "$@"; }
+
+          echo "Cargando la imagen en el VPS..."
+          gunzip -c secop-radar-web.tar.gz | ssh_vps 'podman load'
+
+          # El script va por stdin: el token nunca aparece en una línea de comandos ni en el log.
+          echo "Actualizando el clon y ejecutando deploy.sh..."
+          ssh_vps 'bash -s' <<EOF
+          set -euo pipefail
+          app_dir="\$HOME/apps/secop-radar-web"
+          auth_url="https://x-access-token:${TOKEN}@github.com/${REPOSITORY}.git"
+          if [ ! -d "\$app_dir/.git" ]; then
+            mkdir -p "\$(dirname "\$app_dir")"
+            git clone --quiet "\$auth_url" "\$app_dir"
+          fi
+          cd "\$app_dir"
+          # Nunca dejar el token en .git/config, aunque falle el fetch.
+          trap 'git -C "\$app_dir" remote set-url origin "https://github.com/${REPOSITORY}.git"' EXIT
+          git remote set-url origin "\$auth_url"
+          git fetch --quiet origin main
+          git reset --hard origin/main
+          bash deploy/deploy.sh --force-restart
+          EOF

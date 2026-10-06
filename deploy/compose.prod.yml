@@ -1,0 +1,22 @@
+# SECOP Radar en producción. Lo ejecuta deploy/deploy.sh, que lee deploy/.env junto a este archivo.
+# Sin puertos publicados: nginx proxy manager (NPM) llega a secop-radar.web:8090 por ${PROXY_NETWORK}.
+name: secop-radar
+
+services:
+  secop-radar.web:
+    image: localhost/secop-radar-web:${WEB_TAG:-latest}
+    container_name: secop-radar.web
+    restart: unless-stopped
+    networks:
+      - proxy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8090/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK:?PROXY_NETWORK is required}
+    external: true

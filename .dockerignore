@@ -1,0 +1,10 @@
+.git
+.angular
+.vscode
+node_modules
+dist
+test-results
+playwright-report
+blob-report
+coverage
+deploy/.env
