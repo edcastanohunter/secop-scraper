@@ -5,6 +5,8 @@ const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 
 module.exports = defineConfig([
+  // Tipos generados por `npm run gen:api`.
+  { ignores: ['src/app/api/generated/**'] },
   {
     files: ['**/*.ts'],
     extends: [

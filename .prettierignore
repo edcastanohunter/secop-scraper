@@ -6,3 +6,6 @@ test-results
 playwright-report
 src/app/api/generated
 package-lock.json
+
+# Contrato exportado por la API: se conserva tal cual.
+SecopScrapper_V1.json

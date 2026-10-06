@@ -85,22 +85,22 @@ Los enums viajan como cadenas `snake_case`.
 - `GET /meta/freshness` → `{ lastSyncedAt: Record<datasetKey, string | null> }`.
 - **Filtros** (query string; los repetibles van como `?industry=a&industry=b`):
 
-| Filtro | Valores |
-| --- | --- |
-| `q` | Texto, sintaxis web: `"frase"`, `-excluir`, `OR` |
-| `industry[]` | Ids del catálogo |
-| `department[]` | 2 dígitos |
-| `municipality[]` | DIVIPOLA de 5 dígitos |
-| `entity` | Texto |
-| `source` | `secop1` \| `secop2` |
-| `status[]` | Procesos: `open`, `evaluation`, `awarded`, `closed`, `cancelled`, `unknown`. Contratos: `signed`, `in_progress`, `suspended`, `finished`, `cancelled`, `unknown` |
-| `onlyActive` | bool |
-| `competitiveOnly` | bool, por defecto `true` en procesos |
-| `modality[]` | Valor original de la modalidad |
-| `minAmount`, `maxAmount` | Decimal ≥ 0 |
-| `dateFrom`, `dateTo` | `yyyy-MM-dd` |
-| `sort` | `relevance` \| `date_desc` \| `date_asc` \| `amount_desc` \| `amount_asc` \| `deadline_asc` |
-| `page`, `pageSize` | `pageSize ≤ 100` y `page × pageSize ≤ 10.000` |
+| Filtro                   | Valores                                                                                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `q`                      | Texto, sintaxis web: `"frase"`, `-excluir`, `OR`                                                                                                                 |
+| `industry[]`             | Ids del catálogo                                                                                                                                                 |
+| `department[]`           | 2 dígitos                                                                                                                                                        |
+| `municipality[]`         | DIVIPOLA de 5 dígitos                                                                                                                                            |
+| `entity`                 | Texto                                                                                                                                                            |
+| `source`                 | `secop1` \| `secop2`                                                                                                                                             |
+| `status[]`               | Procesos: `open`, `evaluation`, `awarded`, `closed`, `cancelled`, `unknown`. Contratos: `signed`, `in_progress`, `suspended`, `finished`, `cancelled`, `unknown` |
+| `onlyActive`             | bool                                                                                                                                                             |
+| `competitiveOnly`        | bool, por defecto `true` en procesos                                                                                                                             |
+| `modality[]`             | Valor original de la modalidad                                                                                                                                   |
+| `minAmount`, `maxAmount` | Decimal ≥ 0                                                                                                                                                      |
+| `dateFrom`, `dateTo`     | `yyyy-MM-dd`                                                                                                                                                     |
+| `sort`                   | `relevance` \| `date_desc` \| `date_asc` \| `amount_desc` \| `amount_asc` \| `deadline_asc`                                                                      |
+| `page`, `pageSize`       | `pageSize ≤ 100` y `page × pageSize ≤ 10.000`                                                                                                                    |
 
 - **`SearchPage<T>`** = `{ items, page, pageSize, totalCount, totalCountIsCapped, attribution: { text, license, licenseUrl }, freshness: { lastSyncedAt } }`.
 - **`ProcessSummary`** = `{ source, sourceId, reference?, title, entityName, location: { divipolaCode?, municipalityName?, departmentCode?, departmentName?, municipalityRaw?, departmentRaw? }, industries: { id, name }[], status, isActive, isCompetitive, modality?, basePrice?, publishedAt?, offersDeadlineAt?, awarded, awardedValue?, url? }`.
@@ -147,20 +147,20 @@ Todos los errores son **ProblemDetails** (`application/problem+json`), con `titl
 
 ## Mapa de pantallas (rutas)
 
-| Ruta | Pantalla | Rol |
-| --- | --- | --- |
-| `/` | **Panel**: KPIs, serie temporal, industrias, departamentos y top entidades, con la barra de filtros compartida | `procurement:read` |
-| `/licitaciones` | **Licitaciones** (procesos) con `onlyActive=true` y `competitiveOnly=true` por defecto | `procurement:read` |
-| `/licitaciones/:source/:sourceId` | Detalle de proceso | `procurement:read` |
-| `/contratos` | **Contratos** | `procurement:read` |
-| `/contratos/:source/:sourceId` | Detalle de contrato | `procurement:read` |
-| `/buscar` | Búsqueda global (`/search`) con resultados mixtos marcados "Proceso"/"Contrato" | `procurement:read` |
-| `/busquedas` | Mis búsquedas guardadas | `alerts:manage` |
-| `/busquedas/:id` | Resultados de una búsqueda guardada más el historial de envíos | `alerts:manage` |
-| `/admin/ingesta` | Runs, checkpoints, lanzar un run y estado del scraping | `ingestion:run` |
-| `/admin/catalogos` | Ubicaciones sin resolver → crear alias. Mapeos UNSPSC → industria | `catalog:write` |
-| `/acerca-de-los-datos` | Fuente, licencia CC BY-SA 4.0, frecuencia, qué significa "vigente", privacidad y limitaciones | Pública |
-| `**` | 404 amable | — |
+| Ruta                              | Pantalla                                                                                                       | Rol                |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `/`                               | **Panel**: KPIs, serie temporal, industrias, departamentos y top entidades, con la barra de filtros compartida | `procurement:read` |
+| `/licitaciones`                   | **Licitaciones** (procesos) con `onlyActive=true` y `competitiveOnly=true` por defecto                         | `procurement:read` |
+| `/licitaciones/:source/:sourceId` | Detalle de proceso                                                                                             | `procurement:read` |
+| `/contratos`                      | **Contratos**                                                                                                  | `procurement:read` |
+| `/contratos/:source/:sourceId`    | Detalle de contrato                                                                                            | `procurement:read` |
+| `/buscar`                         | Búsqueda global (`/search`) con resultados mixtos marcados "Proceso"/"Contrato"                                | `procurement:read` |
+| `/busquedas`                      | Mis búsquedas guardadas                                                                                        | `alerts:manage`    |
+| `/busquedas/:id`                  | Resultados de una búsqueda guardada más el historial de envíos                                                 | `alerts:manage`    |
+| `/admin/ingesta`                  | Runs, checkpoints, lanzar un run y estado del scraping                                                         | `ingestion:run`    |
+| `/admin/catalogos`                | Ubicaciones sin resolver → crear alias. Mapeos UNSPSC → industria                                              | `catalog:write`    |
+| `/acerca-de-los-datos`            | Fuente, licencia CC BY-SA 4.0, frecuencia, qué significa "vigente", privacidad y limitaciones                  | Pública            |
+| `**`                              | 404 amable                                                                                                     | —                  |
 
 Cada ruta se carga en diferido (`loadComponent`).
 
@@ -174,6 +174,7 @@ Cada ruta se carga en diferido (`loadComponent`).
    - los interruptores "Solo vigentes" y "Solo competitivos".
 
    **El estado de los filtros vive en la URL** (query params). Recargar o compartir el enlace reproduce la búsqueda. Usa `withComponentInputBinding()` y un `FilterStateService` basado en signals.
+
 2. **Listados** en tabla en escritorio y tarjetas en móvil (< 768 px):
    - Columnas: título, entidad, municipio, industrias (chips), monto, fecha y estado.
    - Un **badge "Vigente"** con la cuenta regresiva hasta el cierre ("Cierra en 3 días") cuando `isActive`.
@@ -192,6 +193,7 @@ Cada ruta se carga en diferido (`loadComponent`).
    - la tabla de top entidades.
 
    Los clics en las gráficas aplican el filtro correspondiente. Las fechas por defecto son los últimos 12 meses.
+
 5. **Guardar búsqueda**: desde cualquier listado, el botón "Guardar búsqueda" abre un diálogo con nombre y frecuencia (Nunca / Diaria / Semanal) y guarda los filtros actuales. Gestiona los errores 422 (límite) y 409 (nombre repetido) en el diálogo.
 6. **Mis búsquedas**: tarjetas con nombre, resumen legible de filtros ("Software · Cajicá, Chía · Solo vigentes"), frecuencia, último envío y el badge `newSinceLastAlert`. Acciones: ver resultados, editar, pausar o reanudar, y borrar con confirmación. En `/busquedas/:id`, una pestaña "Historial de alertas".
 7. **Exportar CSV** (solo con `procurement:export`): descarga con `HttpClient` (`responseType: 'blob'`) y el nombre de `Content-Disposition`. Si llega 422 `TooManyRows`, muestra el conteo y sugiere filtrar. Si llega 429, muestra cuándo se puede reintentar.

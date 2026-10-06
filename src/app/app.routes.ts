@@ -2,8 +2,15 @@ import { Routes } from '@angular/router';
 
 import { roleGuard } from './core/auth/role.guard';
 import { Shell } from './core/layout/shell';
+import { provideCharts } from './shared/charts/chart-theme';
+import { FILTER_DEFAULTS_KEY } from './shared/utils/filter-state.service';
+import { defaultDateRange, FilterDefaults } from './shared/utils/filters';
 
-const comingSoon = () => import('./shared/ui/coming-soon.page').then((m) => m.ComingSoonPage);
+/** Licitaciones arranca mostrando solo procesos vigentes y competitivos (requisito del prompt). */
+const PROCESS_DEFAULTS: FilterDefaults = { onlyActive: true, competitiveOnly: true };
+
+/** El panel muestra los últimos 12 meses (la serie temporal exige fechas). */
+const dashboardDefaults = (): FilterDefaults => defaultDateRange(Date.now());
 
 export const routes: Routes = [
   {
@@ -15,72 +22,76 @@ export const routes: Routes = [
         pathMatch: 'full',
         title: 'Panel',
         canActivate: [roleGuard('procurement:read')],
-        loadComponent: comingSoon,
-        data: { heading: 'Panel' },
+        providers: [provideCharts()],
+        data: { [FILTER_DEFAULTS_KEY]: dashboardDefaults() },
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
       },
       {
         path: 'licitaciones',
         title: 'Licitaciones',
         canActivate: [roleGuard('procurement:read')],
-        loadComponent: comingSoon,
-        data: { heading: 'Licitaciones' },
+        data: { [FILTER_DEFAULTS_KEY]: PROCESS_DEFAULTS },
+        loadComponent: () =>
+          import('./features/processes/processes.page').then((m) => m.ProcessesPage),
       },
       {
         path: 'licitaciones/:source/:sourceId',
         title: 'Detalle de proceso',
         canActivate: [roleGuard('procurement:read')],
-        loadComponent: comingSoon,
-        data: { heading: 'Detalle de proceso' },
+        loadComponent: () =>
+          import('./features/processes/process-detail.page').then((m) => m.ProcessDetailPage),
       },
       {
         path: 'contratos',
         title: 'Contratos',
         canActivate: [roleGuard('procurement:read')],
-        loadComponent: comingSoon,
-        data: { heading: 'Contratos' },
+        loadComponent: () =>
+          import('./features/contracts/contracts.page').then((m) => m.ContractsPage),
       },
       {
         path: 'contratos/:source/:sourceId',
         title: 'Detalle de contrato',
         canActivate: [roleGuard('procurement:read')],
-        loadComponent: comingSoon,
-        data: { heading: 'Detalle de contrato' },
+        loadComponent: () =>
+          import('./features/contracts/contract-detail.page').then((m) => m.ContractDetailPage),
       },
       {
         path: 'buscar',
         title: 'Buscar',
         canActivate: [roleGuard('procurement:read')],
-        loadComponent: comingSoon,
-        data: { heading: 'Buscar' },
+        loadComponent: () => import('./features/search/search.page').then((m) => m.SearchPage),
       },
       {
         path: 'busquedas',
         title: 'Mis búsquedas',
         canActivate: [roleGuard('alerts:manage')],
-        loadComponent: comingSoon,
-        data: { heading: 'Mis búsquedas' },
+        loadComponent: () =>
+          import('./features/saved-searches/saved-searches.page').then((m) => m.SavedSearchesPage),
       },
       {
         // Destino de los enlaces de los emails de alerta (SPEC 08): no cambiar.
         path: 'busquedas/:id',
         title: 'Búsqueda guardada',
         canActivate: [roleGuard('alerts:manage')],
-        loadComponent: comingSoon,
-        data: { heading: 'Búsqueda guardada' },
+        loadComponent: () =>
+          import('./features/saved-searches/saved-search-detail.page').then(
+            (m) => m.SavedSearchDetailPage,
+          ),
       },
       {
         path: 'admin/ingesta',
         title: 'Ingesta',
         canActivate: [roleGuard('ingestion:run')],
-        loadComponent: comingSoon,
-        data: { heading: 'Ingesta' },
+        loadComponent: () =>
+          import('./features/admin/ingestion/ingestion.page').then((m) => m.IngestionPage),
       },
       {
         path: 'admin/catalogos',
         title: 'Catálogos',
         canActivate: [roleGuard('catalog:write')],
-        loadComponent: comingSoon,
-        data: { heading: 'Catálogos' },
+        loadComponent: () =>
+          import('./features/admin/catalogs/catalogs.page').then((m) => m.CatalogsPage),
       },
       {
         path: 'acerca-de-los-datos',

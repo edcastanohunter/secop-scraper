@@ -28,6 +28,12 @@
   --color-danger-soft: var(--danger-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
 }
 
 :root {
@@ -47,6 +53,13 @@
   --danger-soft: #fdeceb;
   --success: #1a6636;
   --success-soft: #e2f4e8;
+  --info: #1d4f91;
+  --info-soft: #e3ecf8;
+  /* Paleta de gráficas: la primera es el acento; contraste ≥ 3:1 con la superficie. */
+  --chart-1: #0a6b60;
+  --chart-2: #2f6fd0;
+  --chart-3: #b26a00;
+  --chart-4: #8a4fbf;
   color-scheme: light;
 }
 
@@ -67,6 +80,12 @@
   --danger-soft: #3c1714;
   --success: #72d69c;
   --success-soft: #133222;
+  --info: #8ab8ff;
+  --info-soft: #14284a;
+  --chart-1: #4fd1bf;
+  --chart-2: #7aa7ff;
+  --chart-3: #f2b45a;
+  --chart-4: #c79bf2;
   color-scheme: dark;
 }
 
@@ -77,6 +96,11 @@
 
   body {
     @apply bg-surface text-ink font-sans antialiased;
+  }
+
+  /* Cifras alineadas en tablas y KPIs. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 
   :focus-visible {
@@ -93,6 +117,17 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Fila de un proceso vigente: tinte suave y borde de acento al inicio. */
+.row-active {
+  background: color-mix(in srgb, var(--success-soft) 55%, transparent);
+  box-shadow: inset 3px 0 0 var(--success);
+}
+
+/* Fondo de los diálogos CDK. */
+.app-backdrop {
+  background: color-mix(in srgb, var(--ink) 45%, transparent);
 }
 
 @utility btn {
@@ -112,4 +147,46 @@
 }
 @utility link {
   @apply text-accent underline underline-offset-2 hover:text-accent-strong;
+}
+@utility input {
+  @apply block w-full rounded-md border border-line bg-raised px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-2 focus:outline-offset-0 focus:outline-accent disabled:opacity-60 aria-[invalid=true]:border-danger;
+}
+@utility label {
+  @apply mb-1 block text-sm font-medium text-ink;
+}
+@utility field-error {
+  @apply mt-1 text-sm text-danger;
+}
+@utility chip {
+  @apply inline-flex max-w-full items-center gap-1 rounded-full border border-line bg-sunken px-2.5 py-0.5 text-xs font-medium text-ink;
+}
+@utility badge {
+  @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap;
+}
+@utility badge-success {
+  @apply badge bg-success-soft text-success;
+}
+@utility badge-warning {
+  @apply badge bg-warning-soft text-warning;
+}
+@utility badge-danger {
+  @apply badge bg-danger-soft text-danger;
+}
+@utility badge-info {
+  @apply badge bg-info-soft text-info;
+}
+@utility badge-neutral {
+  @apply badge bg-sunken text-muted;
+}
+@utility badge-accent {
+  @apply badge bg-accent-soft text-accent;
+}
+@utility table-base {
+  @apply w-full border-collapse text-sm [&_td]:border-t [&_td]:border-line [&_td]:px-3 [&_td]:py-3 [&_td]:align-top [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-start [&_th]:text-xs [&_th]:font-semibold [&_th]:tracking-wide [&_th]:text-muted [&_th]:uppercase [&_thead]:bg-sunken;
+}
+@utility skeleton {
+  @apply animate-pulse rounded-md bg-sunken;
+}
+@utility section-title {
+  @apply text-base font-semibold tracking-tight;
 }

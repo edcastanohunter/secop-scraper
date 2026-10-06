@@ -1,0 +1,304 @@
+/*
+ * SECOP Radar sobre el login keycloak.v2 (PatternFly 5).
+ * Los colores son los mismos tokens de `src/styles.css` de la app: si cambian allí, cámbialos
+ * aquí también. Solo se redefinen variables de PatternFly y unas pocas reglas de layout.
+ */
+
+:root {
+  --sr-surface: #f6f7f9;
+  --sr-raised: #ffffff;
+  --sr-sunken: #eceff3;
+  --sr-line: #d6dbe1;
+  --sr-ink: #141920;
+  --sr-muted: #4f5866;
+  --sr-accent: #0a6b60;
+  --sr-accent-strong: #07514a;
+  --sr-accent-soft: #ddf1ed;
+  --sr-on-accent: #ffffff;
+  --sr-danger: #b42318;
+  --sr-danger-soft: #fdeceb;
+  --sr-warning: #7d5200;
+  --sr-warning-soft: #fcf1d8;
+  --sr-success: #1a6636;
+  --sr-success-soft: #e2f4e8;
+  --sr-font:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+:root.pf-v5-theme-dark {
+  --sr-surface: #0f1318;
+  --sr-raised: #171c23;
+  --sr-sunken: #0a0d11;
+  --sr-line: #2b323c;
+  --sr-ink: #e8ebef;
+  --sr-muted: #a3acb9;
+  --sr-accent: #4fd1bf;
+  --sr-accent-strong: #86e3d6;
+  --sr-accent-soft: #123430;
+  --sr-on-accent: #052420;
+  --sr-danger: #ff8f85;
+  --sr-danger-soft: #3c1714;
+  --sr-warning: #f2c46d;
+  --sr-warning-soft: #392b0c;
+  --sr-success: #72d69c;
+  --sr-success-soft: #133222;
+}
+
+/* ── Variables de PatternFly ──────────────────────────────────────────────────────── */
+
+:root,
+:root.pf-v5-theme-dark {
+  --pf-v5-global--FontFamily--text: var(--sr-font);
+  --pf-v5-global--FontFamily--heading: var(--sr-font);
+  --pf-v5-global--FontFamily--redhat-updated--sans-serif: var(--sr-font);
+  --pf-v5-global--FontFamily--redhat-updated--heading--sans-serif: var(--sr-font);
+
+  --pf-v5-global--BackgroundColor--100: var(--sr-raised);
+  --pf-v5-global--BackgroundColor--200: var(--sr-surface);
+  --pf-v5-global--BackgroundColor--light-100: var(--sr-raised);
+  --pf-v5-global--BackgroundColor--dark-100: var(--sr-surface);
+  --pf-v5-global--Color--100: var(--sr-ink);
+  --pf-v5-global--Color--200: var(--sr-muted);
+  --pf-v5-global--BorderColor--100: var(--sr-line);
+  --pf-v5-global--BorderColor--200: var(--sr-line);
+
+  --pf-v5-global--primary-color--100: var(--sr-accent);
+  --pf-v5-global--primary-color--200: var(--sr-accent-strong);
+  --pf-v5-global--link--Color: var(--sr-accent);
+  --pf-v5-global--link--Color--hover: var(--sr-accent-strong);
+  --pf-v5-global--active-color--100: var(--sr-accent);
+
+  --pf-v5-global--danger-color--100: var(--sr-danger);
+  --pf-v5-global--warning-color--100: var(--sr-warning);
+  --pf-v5-global--success-color--100: var(--sr-success);
+
+  --pf-v5-global--BorderRadius--sm: 6px;
+  --pf-v5-global--BorderRadius--lg: 10px;
+}
+
+/* ── Fondo y marca ────────────────────────────────────────────────────────────────── */
+
+html,
+body,
+.pf-v5-c-login {
+  background: var(--sr-surface);
+  color: var(--sr-ink);
+  font-family: var(--sr-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* keycloak.v2 pone una ilustración de fondo: aquí, una retícula de radar muy suave. */
+.pf-v5-c-login {
+  background-image:
+    radial-gradient(circle at 50% -10%, var(--sr-accent-soft) 0, transparent 55%),
+    repeating-radial-gradient(
+      circle at 50% -10%,
+      transparent 0 79px,
+      color-mix(in srgb, var(--sr-line) 55%, transparent) 79px 80px
+    );
+  background-attachment: fixed;
+}
+
+#kc-header {
+  margin-block: 2rem 1.25rem;
+}
+
+/* PatternFly da a la marca color blanco (fondo oscuro): aquí sigue el tema. */
+#kc-header,
+#kc-header-wrapper {
+  color: var(--sr-ink) !important;
+}
+
+#kc-header-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0;
+  color: var(--sr-ink);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+#kc-header-wrapper::before {
+  content: '';
+  width: 2.25rem;
+  height: 2.25rem;
+  background-color: var(--sr-accent);
+  mask: url('../img/logo.svg') center / contain no-repeat;
+  -webkit-mask: url('../img/logo.svg') center / contain no-repeat;
+}
+
+#kc-header-wrapper strong {
+  color: var(--sr-accent) !important;
+  font-weight: 600;
+}
+
+/* ── Tarjeta ──────────────────────────────────────────────────────────────────────── */
+
+.pf-v5-c-login__main {
+  background: var(--sr-raised);
+  border: 1px solid var(--sr-line);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgb(16 24 40 / 0.06),
+    0 12px 32px -12px rgb(16 24 40 / 0.18);
+  overflow: hidden;
+}
+
+.pf-v5-c-login__main-header {
+  padding-block-start: 2rem;
+  /* keycloak.v2 pinta una franja azul fija: aquí, el acento de la app. */
+  border-top-color: var(--sr-accent) !important;
+}
+
+.pf-v5-c-login__main-header .pf-v5-c-title,
+#kc-page-title {
+  color: var(--sr-ink);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.pf-v5-c-login__main-footer-band {
+  background: var(--sr-sunken);
+  border-top: 1px solid var(--sr-line);
+  color: var(--sr-muted);
+}
+
+/* ── Formulario ───────────────────────────────────────────────────────────────────── */
+
+.pf-v5-c-form__label-text {
+  color: var(--sr-ink);
+  font-weight: 500;
+}
+
+.pf-v5-c-form-control {
+  --pf-v5-c-form-control--BackgroundColor: var(--sr-raised);
+  border-radius: 6px;
+  color: var(--sr-ink);
+}
+
+/* PatternFly dibuja el borde con ::before (lados) y ::after (abajo): una caja completa como en la app. */
+.pf-v5-c-form-control::before {
+  border: 1px solid var(--sr-line) !important;
+  border-radius: 6px;
+}
+
+.pf-v5-c-form-control::after {
+  border-color: transparent !important;
+}
+
+.pf-v5-c-form-control:hover::before {
+  border-color: var(--sr-muted) !important;
+}
+
+.pf-v5-c-form-control:focus-within::before {
+  border-color: var(--sr-accent) !important;
+}
+
+.pf-v5-c-form-control:focus-within {
+  outline: 2px solid var(--sr-accent);
+  outline-offset: 0;
+}
+
+.pf-v5-c-form-control.pf-m-error {
+  --pf-v5-c-form-control--before--BorderColor: var(--sr-danger);
+}
+
+.pf-v5-c-helper-text__item.pf-m-error,
+.kc-feedback-text,
+#input-error {
+  color: var(--sr-danger);
+}
+
+.pf-v5-c-button {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.pf-v5-c-button.pf-m-primary {
+  --pf-v5-c-button--m-primary--BackgroundColor: var(--sr-accent);
+  --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--sr-accent-strong);
+  --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--sr-accent-strong);
+  --pf-v5-c-button--m-primary--active--BackgroundColor: var(--sr-accent-strong);
+  --pf-v5-c-button--m-primary--Color: var(--sr-on-accent);
+  --pf-v5-c-button--m-primary--hover--Color: var(--sr-on-accent);
+  min-height: 2.75rem;
+}
+
+.pf-v5-c-button.pf-m-link,
+.pf-v5-c-login a {
+  color: var(--sr-accent);
+  text-underline-offset: 2px;
+}
+
+.pf-v5-c-login a:hover {
+  color: var(--sr-accent-strong);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sr-accent);
+  outline-offset: 2px;
+}
+
+.pf-v5-c-check__input {
+  accent-color: var(--sr-accent);
+}
+
+/* ── Avisos ───────────────────────────────────────────────────────────────────────── */
+
+.pf-v5-c-alert {
+  border-radius: 8px;
+  box-shadow: none;
+  border: 1px solid transparent;
+}
+
+.pf-v5-c-alert.pf-m-danger {
+  --pf-v5-c-alert--BackgroundColor: var(--sr-danger-soft);
+  border-color: color-mix(in srgb, var(--sr-danger) 30%, transparent);
+}
+
+.pf-v5-c-alert.pf-m-warning {
+  --pf-v5-c-alert--BackgroundColor: var(--sr-warning-soft);
+}
+
+.pf-v5-c-alert.pf-m-success {
+  --pf-v5-c-alert--BackgroundColor: var(--sr-success-soft);
+}
+
+.pf-v5-c-alert.pf-m-info {
+  --pf-v5-c-alert--BackgroundColor: var(--sr-accent-soft);
+}
+
+/* ── Selector de idioma y pie ─────────────────────────────────────────────────────── */
+
+.pf-v5-c-menu-toggle {
+  border-radius: 6px;
+}
+
+#kc-info-wrapper,
+#kc-registration-container {
+  color: var(--sr-muted);
+}
+
+/* ── Móvil (desde 360 px) ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 575px) {
+  #kc-header {
+    margin-block: 1.25rem 0.75rem;
+  }
+
+  .pf-v5-c-login__main {
+    border-radius: 0;
+    border-inline: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

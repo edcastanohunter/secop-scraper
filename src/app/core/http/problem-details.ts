@@ -110,9 +110,41 @@ function defaultTitle(status: number): string {
   return 'Error';
 }
 
+/**
+ * Mensajes en español de los códigos de dominio que la UI conoce. El backend escribe `detail`
+ * en inglés, así que solo se muestra tal cual cuando el código no está aquí.
+ */
+const ERROR_CODE_MESSAGES: Record<string, string> = {
+  'SavedSearch.NameTaken': 'Ya tienes una búsqueda guardada con ese nombre. Elige otro.',
+  'SavedSearch.LimitReached':
+    'Llegaste al máximo de búsquedas guardadas. Borra alguna para guardar esta.',
+  'SavedSearch.VerifiedEmailRequired':
+    'Las alertas llegan por email: verifica tu correo en "Mi cuenta" para activarlas.',
+  'SavedSearch.NotFound': 'Esta búsqueda guardada no existe o no es tuya.',
+  'SavedSearch.InvalidName': 'El nombre debe tener entre 1 y 100 caracteres.',
+  'Export.TooManyRows': 'Hay demasiados resultados para exportar. Afina los filtros.',
+  'Scraping.Disabled': 'Función no disponible por ahora.',
+  'Scraping.HostBlocked': 'El portal SECOP limitó el acceso. Inténtalo más tarde.',
+  'Scraping.AlreadyRunning': 'Ya estamos consultando el portal SECOP para este proceso.',
+  'Ingestion.RunInProgress': 'Ya hay un run en cola o en curso para ese dataset.',
+  'Procurement.ProcessNotFound': 'No encontramos este proceso.',
+  'Procurement.ContractNotFound': 'No encontramos este contrato.',
+  'Catalog.AliasExists': 'Esa escritura ya está asignada a un municipio.',
+  'Catalog.MunicipalityNotFound': 'No existe un municipio con ese código DIVIPOLA.',
+  'Catalog.MappingNotFound': 'No hay un mapeo para ese prefijo.',
+};
+
+/** Filas que tendría una exportación rechazada con `Export.TooManyRows`, si el detalle las trae. */
+export function exportRowCount(problem: ProblemDetails): number | null {
+  const match = /match (\d+) rows/i.exec(problem.detail ?? '');
+  return match ? Number(match[1]) : null;
+}
+
 /** Mensaje para personas, en español, a partir del ProblemDetails. */
 export function problemMessage(problem: ProblemDetails): string {
-  const { status, detail } = problem;
+  const { status, detail, errorCode } = problem;
+  const known = errorCode ? ERROR_CODE_MESSAGES[errorCode] : undefined;
+  if (known) return known;
   if (status === 0) {
     return 'No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.';
   }

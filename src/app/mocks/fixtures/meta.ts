@@ -1,4 +1,4 @@
-import { Freshness } from '../../api/meta.models';
+import { Freshness } from '../../api/models';
 
 const HOUR_MS = 60 * 60 * 1000;
 

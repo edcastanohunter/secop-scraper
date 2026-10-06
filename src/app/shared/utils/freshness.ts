@@ -1,14 +1,10 @@
+import { DATASET_LABELS } from './labels';
+
 /** Un dataset sin sincronizar en más de 36 h se marca como desactualizado (SPEC 04). */
 export const STALE_AFTER_MS = 36 * 60 * 60 * 1000;
 
-const DATASET_LABELS: Record<string, string> = {
-  'secop2-processes': 'Procesos SECOP II',
-  'secop2-contracts': 'Contratos SECOP II',
-  'secop1-processes': 'Procesos SECOP I',
-};
-
 export function datasetLabel(key: string): string {
-  return DATASET_LABELS[key] ?? key;
+  return (DATASET_LABELS as Record<string, string>)[key] ?? key;
 }
 
 export interface FreshnessSummary {

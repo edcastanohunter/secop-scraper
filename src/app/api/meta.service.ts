@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 
 import { AuthService } from '../core/auth/auth.service';
 import { apiUrl } from '../core/config/api-url';
-import { Freshness } from './meta.models';
+import { Freshness } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class MetaService {

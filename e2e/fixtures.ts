@@ -20,5 +20,32 @@ export async function expectNoA11yViolations(page: Page): Promise<void> {
   expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
 }
 
+/** En móvil los filtros viven en un panel lateral: lo abre antes de usarlos. */
+export async function openFilters(page: Page, isMobile: boolean): Promise<void> {
+  if (isMobile) await page.getByRole('button', { name: /^Filtros/ }).click();
+}
+
+export async function closeFilters(page: Page, isMobile: boolean): Promise<void> {
+  if (isMobile) await page.getByRole('button', { name: 'Ver resultados' }).click();
+}
+
+/**
+ * Navega dentro de la SPA con el menú principal. Los mocks guardan el estado en memoria:
+ * un `page.goto` lo reinicia, un clic en el menú no.
+ */
+export async function navTo(page: Page, isMobile: boolean, label: string): Promise<void> {
+  if (isMobile) await page.getByRole('button', { name: 'Abrir menú' }).click();
+  await page
+    .getByRole('navigation', { name: 'Principal' })
+    .getByRole('link', { name: label })
+    .click();
+}
+
+/** Busca y elige un municipio en el autocompletar de la barra de filtros. */
+export async function pickMunicipality(page: Page, text: string, option: RegExp): Promise<void> {
+  await page.getByRole('combobox', { name: 'Municipio' }).fill(text);
+  await page.getByRole('option', { name: option }).click();
+}
+
 export const test = base;
 export { expect };

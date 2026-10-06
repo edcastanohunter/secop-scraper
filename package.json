@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "e2e": "playwright test",
-    "gen:api": "openapi-typescript ../SecopScrapper/docs/openapi/secopscrapper.json -o src/app/api/generated/schema.d.ts"
+    "gen:api": "node scripts/gen-api.mjs"
   },
   "private": true,
   "packageManager": "npm@11.6.2",

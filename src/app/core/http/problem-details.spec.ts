@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
-import { fieldErrorsFor, problemMessage, toProblem } from './problem-details';
+import { exportRowCount, fieldErrorsFor, problemMessage, toProblem } from './problem-details';
 
 function httpError(status: number, error: unknown): HttpErrorResponse {
   return new HttpErrorResponse({ status, error, headers: new HttpHeaders() });
@@ -77,6 +77,32 @@ describe('problemMessage', () => {
   it('en 409/422 usa el detail del servidor', () => {
     const problem = toProblem(httpError(409, { detail: 'Ya existe una búsqueda con ese nombre.' }));
     expect(problemMessage(problem)).toBe('Ya existe una búsqueda con ese nombre.');
+  });
+});
+
+describe('códigos de dominio', () => {
+  it('traduce los errorCode conocidos en vez de mostrar el detail en inglés', () => {
+    const problem = toProblem(
+      httpError(409, {
+        errorCode: 'SavedSearch.NameTaken',
+        detail: 'Another saved search of the current user already has that name.',
+      }),
+    );
+    expect(problemMessage(problem)).toBe(
+      'Ya tienes una búsqueda guardada con ese nombre. Elige otro.',
+    );
+  });
+
+  it('exportRowCount lee el conteo de Export.TooManyRows', () => {
+    const problem = toProblem(
+      httpError(422, {
+        errorCode: 'Export.TooManyRows',
+        detail:
+          'The filters match 61234 rows and an export holds at most 50000. Narrow the filters.',
+      }),
+    );
+    expect(exportRowCount(problem)).toBe(61234);
+    expect(exportRowCount(toProblem(httpError(422, {})))).toBeNull();
   });
 });
 
