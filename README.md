@@ -77,18 +77,18 @@ bundle con nginx en el puerto 8090, solo dentro de la red de nginx proxy manager
 
 Configurar en GitHub, en Settings → Secrets and variables → Actions:
 
-| Tipo     | Nombre               | Obligatorio | Valor                                                                           |
-| -------- | -------------------- | ----------- | ------------------------------------------------------------------------------- |
-| Secret   | `VPS_HOST`           | Sí          | Host o IP del VPS.                                                              |
-| Secret   | `VPS_USER`           | Sí          | Usuario SSH del VPS (el que corre Podman rootless).                             |
-| Secret   | `VPS_SSH_KEY`        | Sí          | Llave privada SSH de deploy, sin passphrase.                                    |
-| Secret   | `TOKEN`              | Sí          | Token de GitHub con lectura de este repo (el VPS clona con él).                 |
-| Variable | `API_BASE_URL`       | Sí          | URL pública de la API, sin `/` final (p. ej. `https://api-secop.example.com`).  |
-| Variable | `KEYCLOAK_URL`       | Sí          | URL pública de Keycloak, sin `/realms/...` (p. ej. `https://auth.example.com`). |
-| Variable | `KEYCLOAK_REALM`     | No          | Realm. Por defecto `secopscrapper`.                                             |
-| Variable | `KEYCLOAK_CLIENT_ID` | No          | Cliente público con PKCE. Por defecto `secopscrapper-web`.                      |
+| Tipo     | Nombre               | Obligatorio | Valor                                                                                 |
+| -------- | -------------------- | ----------- | ------------------------------------------------------------------------------------- |
+| Secret   | `VPS_HOST`           | Sí          | Host o IP del VPS.                                                                    |
+| Secret   | `VPS_USER`           | Sí          | Usuario SSH del VPS (el que corre Podman rootless).                                   |
+| Secret   | `VPS_SSH_KEY`        | Sí          | Llave privada SSH de deploy, sin passphrase.                                          |
+| Secret   | `TOKEN`              | Sí          | Token de GitHub con lectura de este repo (el VPS clona con él).                       |
+| Variable | `API_BASE_URL`       | No          | URL pública de la API, sin `/` final. Por defecto `https://api-secop.edcastdev.com`.  |
+| Variable | `KEYCLOAK_URL`       | No          | URL pública de Keycloak, sin `/realms/...`. Por defecto `https://auth.edcastdev.com`. |
+| Variable | `KEYCLOAK_REALM`     | No          | Realm. Por defecto `secopscrapper`.                                                   |
+| Variable | `KEYCLOAK_CLIENT_ID` | No          | Cliente público con PKCE. Por defecto `secopscrapper-web`.                            |
 
-Las variables se incrustan en el bundle al compilar (el `Dockerfile` reemplaza los valores de
+Los valores por defecto son los `ARG` del `Dockerfile`; las variables del repo solo los reemplazan. Se incrustan en el bundle al compilar (el `Dockerfile` reemplaza los valores de
 `environment.ts`): cambiar una exige volver a desplegar.
 
 En el VPS, una sola vez:

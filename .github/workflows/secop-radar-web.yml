@@ -5,8 +5,9 @@
 #   3. Actualiza el clon de la app en el VPS y ejecuta deploy/deploy.sh.
 #
 # Secrets: VPS_HOST, VPS_USER, VPS_SSH_KEY (llave de deploy dedicada SIN passphrase), TOKEN (lectura del repo).
-# Variables del repo (Settings → Variables): API_BASE_URL, KEYCLOAK_URL; opcionales KEYCLOAK_REALM,
-# KEYCLOAK_CLIENT_ID. Angular las incrusta en el bundle al compilar, no se leen en tiempo de ejecución.
+# Las URLs de la API y de Keycloak tienen valores por defecto en los ARG del Dockerfile. Variables del repo
+# opcionales que los reemplazan: API_BASE_URL, KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID.
+# Angular las incrusta en el bundle al compilar, no se leen en tiempo de ejecución.
 name: secop-radar-web
 
 on:
@@ -52,18 +53,16 @@ jobs:
         env:
           API_BASE_URL: ${{ vars.API_BASE_URL }}
           KEYCLOAK_URL: ${{ vars.KEYCLOAK_URL }}
-          KEYCLOAK_REALM: ${{ vars.KEYCLOAK_REALM || 'secopscrapper' }}
-          KEYCLOAK_CLIENT_ID: ${{ vars.KEYCLOAK_CLIENT_ID || 'secopscrapper-web' }}
+          KEYCLOAK_REALM: ${{ vars.KEYCLOAK_REALM }}
+          KEYCLOAK_CLIENT_ID: ${{ vars.KEYCLOAK_CLIENT_ID }}
         run: |
           set -euo pipefail
-          [ -n "$API_BASE_URL" ] || { echo "::error::Falta la variable del repo API_BASE_URL"; exit 1; }
-          [ -n "$KEYCLOAK_URL" ] || { echo "::error::Falta la variable del repo KEYCLOAK_URL"; exit 1; }
-          podman build \
-            --build-arg API_BASE_URL="$API_BASE_URL" \
-            --build-arg KEYCLOAK_URL="$KEYCLOAK_URL" \
-            --build-arg KEYCLOAK_REALM="$KEYCLOAK_REALM" \
-            --build-arg KEYCLOAK_CLIENT_ID="$KEYCLOAK_CLIENT_ID" \
-            -t "$WEB_IMAGE:latest" -t "$WEB_IMAGE:$VERSION" .
+          # Solo se pasan las variables definidas: un --build-arg vacío pisaría el valor por defecto del Dockerfile.
+          build_args=()
+          for name in API_BASE_URL KEYCLOAK_URL KEYCLOAK_REALM KEYCLOAK_CLIENT_ID; do
+            if [ -n "${!name}" ]; then build_args+=(--build-arg "$name=${!name}"); fi
+          done
+          podman build "${build_args[@]}" -t "$WEB_IMAGE:latest" -t "$WEB_IMAGE:$VERSION" .
 
       - name: Guardar imagen
         run: |

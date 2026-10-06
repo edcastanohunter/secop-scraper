@@ -8,10 +8,10 @@ RUN npm ci --no-audit --no-fund
 
 COPY . .
 
-ARG API_BASE_URL=https://api-secop.edcastdev.com
-ARG KEYCLOAK_URL=auth.edcastdev.com
-ARG KEYCLOAK_REALM=secopscrapper
-ARG KEYCLOAK_CLIENT_ID=secopscrapper-web
+ARG API_BASE_URL="https://api-secop.edcastdev.com"
+ARG KEYCLOAK_URL="https://auth.edcastdev.com"
+ARG KEYCLOAK_REALM="secopscrapper"
+ARG KEYCLOAK_CLIENT_ID="secopscrapper-web"
 # Reemplaza los valores de desarrollo; el grep final falla el build si algo quedó apuntando a localhost.
 RUN test -n "$API_BASE_URL" && test -n "$KEYCLOAK_URL" \
  && sed -i \
