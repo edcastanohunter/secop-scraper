@@ -17,6 +17,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   { path: '/', label: 'Panel', role: 'procurement:read', exact: true },
   { path: '/licitaciones', label: 'Licitaciones', role: 'procurement:read' },
   { path: '/contratos', label: 'Contratos', role: 'procurement:read' },
+  { path: '/estadisticas/contratistas', label: 'Contratistas', role: 'procurement:read' },
   { path: '/buscar', label: 'Buscar', role: 'procurement:read' },
   { path: '/busquedas', label: 'Mis búsquedas', role: 'alerts:manage' },
   { path: '/admin/ingesta', label: 'Ingesta', role: 'ingestion:run' },

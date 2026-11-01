@@ -15,8 +15,11 @@ import {
   SearchPage,
   StatsList,
   StatsSummary,
+  SupplierBucket,
+  SupplierProfile,
   TimeSeriesPoint,
 } from '../api/models';
+import { computeSupplierKey } from '../shared/utils/supplier';
 import { freshnessFixture } from './fixtures/meta';
 
 /**
@@ -100,6 +103,7 @@ interface Row {
   awardedValue: number | null;
   date: string | null;
   deadline: string | null;
+  supplierKey?: string | null;
 }
 
 export function processRow(p: ProcessDetail): Row {
@@ -145,6 +149,7 @@ export function contractRow(c: ContractDetail): Row {
     awardedValue: null,
     date: c.signedAt,
     deadline: null,
+    supplierKey: computeSupplierKey(c.supplierNit, c.supplierName),
   };
 }
 
@@ -156,6 +161,7 @@ export interface Query {
   department: string[];
   municipality: string[];
   entity: string;
+  supplier: string;
   source: string;
   status: string[];
   modality: string[];
@@ -187,6 +193,7 @@ export function readQuery(params: URLSearchParams): Query {
     department: params.getAll('department'),
     municipality: params.getAll('municipality'),
     entity: params.get('entity') ?? '',
+    supplier: params.get('supplier') ?? '',
     source: params.get('source') ?? '',
     status: params.getAll('status'),
     modality: params.getAll('modality'),
@@ -317,6 +324,7 @@ export function matches(row: Row, query: Query, ignore?: FilterKey): boolean {
     return false;
   }
   if (query.entity && !fold(row.entityName).includes(fold(query.entity))) return false;
+  if (query.supplier && row.supplierKey !== query.supplier) return false;
   if (ignore !== 'source' && query.source && row.source !== query.source) return false;
   if (ignore !== 'status' && query.status.length > 0 && !query.status.includes(row.status)) {
     return false;
@@ -633,6 +641,130 @@ export function statsTopEntities(
     ],
   );
   return statsEnvelope(items.slice(0, limit), now);
+}
+
+export function statsTopSuppliers(
+  contracts: ContractDetail[],
+  query: Query,
+  sort: 'count' | 'amount',
+  limit: number,
+  now: number,
+): StatsList<SupplierBucket> {
+  const matched = contracts
+    .map((c) => ({ contract: c, row: contractRow(c) }))
+    .filter(({ row }) => matches(row, query) && !!row.supplierKey);
+
+  const bySupplier = new Map<
+    string,
+    {
+      supplierKey: string;
+      count: number;
+      totalAmount: number;
+      contracts: ContractDetail[];
+    }
+  >();
+
+  for (const { contract, row } of matched) {
+    const key = row.supplierKey!;
+    let group = bySupplier.get(key);
+    if (!group) {
+      group = { supplierKey: key, count: 0, totalAmount: 0, contracts: [] };
+      bySupplier.set(key, group);
+    }
+    group.count += 1;
+    group.totalAmount += contract.value ?? 0;
+    group.contracts.push(contract);
+  }
+
+  const items: SupplierBucket[] = Array.from(bySupplier.values()).map((group) => {
+    const allForSupplier = contracts.filter(
+      (c) => computeSupplierKey(c.supplierNit, c.supplierName) === group.supplierKey,
+    );
+    const sorted = [...allForSupplier].sort((a, b) => {
+      const aDate = a.signedAt ?? '';
+      const bDate = b.signedAt ?? '';
+      if (bDate !== aDate) return bDate.localeCompare(aDate);
+      if (a.source !== b.source) return a.source.localeCompare(b.source);
+      return a.sourceId.localeCompare(b.sourceId);
+    });
+    const latest = sorted[0];
+
+    return {
+      supplierKey: group.supplierKey,
+      supplierName: latest?.supplierName ?? group.contracts[0].supplierName ?? group.supplierKey,
+      supplierNit: latest?.supplierNit ?? null,
+      count: group.count,
+      totalAmount: group.totalAmount,
+    };
+  });
+
+  items.sort((a, b) => {
+    if (sort === 'amount') {
+      if (b.totalAmount !== a.totalAmount) return b.totalAmount - a.totalAmount;
+      if (b.count !== a.count) return b.count - a.count;
+      return a.supplierKey.localeCompare(b.supplierKey);
+    } else {
+      if (b.count !== a.count) return b.count - a.count;
+      if (b.totalAmount !== a.totalAmount) return b.totalAmount - a.totalAmount;
+      return a.supplierKey.localeCompare(b.supplierKey);
+    }
+  });
+
+  return statsEnvelope(items.slice(0, limit), now);
+}
+
+export function getSupplierProfile(
+  contracts: ContractDetail[],
+  supplierKey: string,
+  now: number,
+): SupplierProfile | ProblemBody {
+  if (
+    (!supplierKey.startsWith('nit:') && !supplierKey.startsWith('nombre:')) ||
+    supplierKey.length > 300
+  ) {
+    return problem(400, 'Suppliers.InvalidKey', 'The contractor key is invalid.');
+  }
+
+  const allForSupplier = contracts.filter(
+    (c) => computeSupplierKey(c.supplierNit, c.supplierName) === supplierKey,
+  );
+
+  if (allForSupplier.length === 0) {
+    return problem(404, 'Suppliers.NotFound', 'Contractor not found.');
+  }
+
+  const sorted = [...allForSupplier].sort((a, b) => {
+    const aDate = a.signedAt ?? '';
+    const bDate = b.signedAt ?? '';
+    if (bDate !== aDate) return bDate.localeCompare(aDate);
+    if (a.source !== b.source) return a.source.localeCompare(b.source);
+    return a.sourceId.localeCompare(b.sourceId);
+  });
+  const latest = sorted[0];
+
+  const signedDates = allForSupplier
+    .map((c) => c.signedAt)
+    .filter((d): d is string => !!d)
+    .sort();
+
+  const sources = Array.from(new Set(allForSupplier.map((c) => c.source))).sort();
+  const totalAmount = allForSupplier.reduce((acc, c) => acc + (c.value ?? 0), 0);
+
+  const env = statsEnvelope([], now);
+
+  return {
+    supplierKey,
+    supplierName: latest.supplierName ?? supplierKey,
+    supplierNit: latest.supplierNit ?? null,
+    isSme: latest.supplierIsSme ?? null,
+    sources,
+    firstSignedAt: signedDates[0] ?? null,
+    lastSignedAt: signedDates[signedDates.length - 1] ?? null,
+    count: allForSupplier.length,
+    totalAmount,
+    attribution: env.attribution,
+    freshness: env.freshness,
+  };
 }
 
 const STATUS_LABELS: Record<string, string> = {

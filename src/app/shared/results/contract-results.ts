@@ -6,6 +6,7 @@ import { ContractSummary } from '../../api/models';
 import { CopCurrencyPipe } from '../pipes/cop-currency.pipe';
 import { SourceBadge, StatusBadge } from '../ui/badges';
 import { IndustryChips, LocationCell } from '../ui/record-cells';
+import { computeSupplierKey } from '../utils/supplier';
 
 /** Contratos: tabla en escritorio y tarjetas en móvil (< 768 px). */
 @Component({
@@ -51,7 +52,15 @@ import { IndustryChips, LocationCell } from '../ui/record-cells';
                 <p class="mt-0.5 text-xs text-muted">{{ item.entityName }}</p>
               </td>
               <td>
-                {{ item.supplierName ?? '—' }}
+                @if (supplierKey(item); as key) {
+                  <a
+                    class="font-medium text-ink hover:text-accent hover:underline"
+                    [routerLink]="['/contratistas', key]"
+                    >{{ item.supplierName }}</a
+                  >
+                } @else {
+                  {{ item.supplierName ?? '—' }}
+                }
                 @if (item.supplierIsSme) {
                   <span class="badge-info ms-1">Mipyme</span>
                 }
@@ -83,7 +92,17 @@ import { IndustryChips, LocationCell } from '../ui/record-cells';
           <dl class="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
             <div>
               <dt class="text-xs text-muted">Contratista</dt>
-              <dd>{{ item.supplierName ?? '—' }}</dd>
+              <dd>
+                @if (supplierKey(item); as key) {
+                  <a
+                    class="font-medium text-ink hover:text-accent hover:underline"
+                    [routerLink]="['/contratistas', key]"
+                    >{{ item.supplierName }}</a
+                  >
+                } @else {
+                  {{ item.supplierName ?? '—' }}
+                }
+              </dd>
             </div>
             <div>
               <dt class="text-xs text-muted">Valor</dt>
@@ -107,4 +126,8 @@ import { IndustryChips, LocationCell } from '../ui/record-cells';
 export class ContractResults {
   readonly items = input.required<readonly ContractSummary[]>();
   readonly caption = input('Contratos');
+
+  protected supplierKey(item: ContractSummary): string | null {
+    return computeSupplierKey(item.supplierNit, item.supplierName);
+  }
 }

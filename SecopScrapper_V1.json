@@ -4,11 +4,6 @@
     "title": "SecopScrapper.Api | v1",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "http://localhost:5146/"
-    }
-  ],
   "paths": {
     "/work-items/{id}/complete": {
       "post": {
@@ -67,7 +62,7 @@
             "description": "Created",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": { }
               }
             }
           },
@@ -327,11 +322,26 @@
               "type": "string",
               "format": "date"
             }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -342,6 +352,14 @@
           },
           "400": {
             "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -456,6 +474,13 @@
             }
           },
           {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "level",
             "in": "query",
             "schema": {
@@ -466,6 +491,14 @@
         "responses": {
           "200": {
             "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -476,6 +509,14 @@
           },
           "400": {
             "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -588,11 +629,26 @@
               "type": "string",
               "format": "date"
             }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -603,6 +659,14 @@
           },
           "400": {
             "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -715,11 +779,26 @@
               "type": "string",
               "format": "date"
             }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -730,6 +809,14 @@
           },
           "400": {
             "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -844,6 +931,13 @@
             }
           },
           {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "interval",
             "in": "query",
             "schema": {
@@ -854,6 +948,14 @@
         "responses": {
           "200": {
             "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -864,6 +966,14 @@
           },
           "400": {
             "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -978,6 +1088,13 @@
             }
           },
           {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
             "schema": {
@@ -993,6 +1110,14 @@
         "responses": {
           "200": {
             "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1003,6 +1128,258 @@
           },
           "400": {
             "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/top-suppliers": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "summary": "The contractors with the most records (limit 1-50, default 10, sort count or amount). dateFrom and dateTo are required.",
+        "operationId": "GetStatsTopSuppliers",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "industry",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "municipality",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "onlyActive",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "competitiveOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "modality",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsListOfSupplierBucket"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/suppliers/{supplierKey}": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "summary": "Contractor profile across their entire contract history.",
+        "operationId": "GetSupplierProfile",
+        "parameters": [
+          {
+            "name": "supplierKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "Server-Timing": {
+                "description": "Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc=\"hit\"|\"miss\"`).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1183,6 +1560,13 @@
                 "string"
               ],
               "format": "int32"
+            }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -1519,6 +1903,13 @@
             }
           },
           {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "onlyActive",
             "in": "query",
             "schema": {
@@ -1759,6 +2150,13 @@
                 "string"
               ],
               "format": "int32"
+            }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -2139,6 +2537,13 @@
               ],
               "format": "int32"
             }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2366,6 +2771,13 @@
               ],
               "format": "int32"
             }
+          },
+          {
+            "name": "supplier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2414,7 +2826,7 @@
             "description": "Created",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": { }
               }
             }
           },
@@ -5315,6 +5727,28 @@
           }
         }
       },
+      "StatsListOfSupplierBucket": {
+        "required": [
+          "items",
+          "attribution",
+          "freshness"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupplierBucket"
+            }
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          },
+          "freshness": {
+            "$ref": "#/components/schemas/StatsFreshness"
+          }
+        }
+      },
       "StatsListOfTimeSeriesPoint": {
         "required": [
           "items",
@@ -5401,6 +5835,124 @@
           "dateTo": {
             "type": "string",
             "format": "date"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          },
+          "freshness": {
+            "$ref": "#/components/schemas/StatsFreshness"
+          }
+        }
+      },
+      "SupplierBucket": {
+        "required": [
+          "supplierKey",
+          "supplierName",
+          "supplierNit",
+          "count",
+          "totalAmount"
+        ],
+        "type": "object",
+        "properties": {
+          "supplierKey": {
+            "type": "string"
+          },
+          "supplierName": {
+            "type": "string"
+          },
+          "supplierNit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "totalAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "SupplierProfile": {
+        "required": [
+          "supplierKey",
+          "supplierName",
+          "supplierNit",
+          "isSme",
+          "sources",
+          "firstSignedAt",
+          "lastSignedAt",
+          "count",
+          "totalAmount",
+          "attribution",
+          "freshness"
+        ],
+        "type": "object",
+        "properties": {
+          "supplierKey": {
+            "type": "string"
+          },
+          "supplierName": {
+            "type": "string"
+          },
+          "supplierNit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isSme": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "firstSignedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "lastSignedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "totalAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
           },
           "attribution": {
             "$ref": "#/components/schemas/Attribution"

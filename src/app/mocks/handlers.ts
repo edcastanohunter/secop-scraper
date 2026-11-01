@@ -29,10 +29,12 @@ import {
   statsSummary,
   statsTimeSeries,
   statsTopEntities,
+  statsTopSuppliers,
   toCsv,
   validateQuery,
   validation,
   withDefaultDates,
+  getSupplierProfile,
 } from './query';
 
 /** Latencia simulada para que se vean los skeletons. */
@@ -128,6 +130,13 @@ function statsQuery(
     return validation([{ code: 'Kind', description: 'The kind must be processes or contracts.' }]);
   }
   const query = readQuery(params);
+  if (query.supplier && kind === 'processes') {
+    return problem(
+      400,
+      'Suppliers.FilterNotSupported',
+      'Supplier filter is not supported for processes.',
+    );
+  }
   if (datesRequired) {
     const missing = requireDates(query);
     if (missing) return missing;
@@ -194,6 +203,15 @@ export const handlers = [
   http.get(apiUrl('/contracts/export'), async ({ request }) => exportCsv(request, 'contracts')),
   http.get(apiUrl('/processes'), async ({ request }) => {
     await delay(LATENCY_MS);
+    if (new URL(request.url).searchParams.has('supplier')) {
+      return problemResponse(
+        problem(
+          400,
+          'Suppliers.FilterNotSupported',
+          'Supplier filter is not supported for processes.',
+        ),
+      );
+    }
     const parsed = listQuery(request);
     if (isProblem(parsed)) return problemResponse(parsed);
     return HttpResponse.json(
@@ -218,6 +236,15 @@ export const handlers = [
   }),
   http.get(apiUrl('/search'), async ({ request }) => {
     await delay(LATENCY_MS);
+    if (new URL(request.url).searchParams.has('supplier')) {
+      return problemResponse(
+        problem(
+          400,
+          'Suppliers.FilterNotSupported',
+          'Supplier filter is not supported for processes.',
+        ),
+      );
+    }
     const parsed = listQuery(request);
     if (isProblem(parsed)) return problemResponse(parsed);
     return HttpResponse.json(
@@ -304,6 +331,43 @@ export const handlers = [
     }
     const rows = statsRows(db.processes, db.contracts, parsed.kind);
     return HttpResponse.json(statsTopEntities(rows, parsed.query, limit, Date.now()));
+  }),
+  http.get(apiUrl('/stats/top-suppliers'), async ({ request }) => {
+    await delay(LATENCY_MS);
+    const url = new URL(request.url);
+    if (url.searchParams.get('kind') === 'processes') {
+      return problemResponse(
+        problem(400, 'Suppliers.FilterNotSupported', 'Supplier ranking only applies to contracts.'),
+      );
+    }
+    const parsed = statsQuery(request, true);
+    if (isProblem(parsed)) return problemResponse(parsed);
+
+    const sort = url.searchParams.get('sort') ?? 'count';
+    if (!['count', 'amount'].includes(sort)) {
+      return problemResponse(
+        validation([{ code: 'Sort', description: 'The sort must be count or amount.' }]),
+      );
+    }
+
+    const limitParam = url.searchParams.get('limit') ?? '10';
+    const limit = Number(limitParam);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+      return problemResponse(
+        validation([{ code: 'Limit', description: 'The limit must be between 1 and 50.' }]),
+      );
+    }
+
+    return HttpResponse.json(
+      statsTopSuppliers(db.contracts, parsed.query, sort as 'count' | 'amount', limit, Date.now()),
+    );
+  }),
+  http.get(apiUrl('/stats/suppliers/:supplierKey'), async ({ params }) => {
+    await delay(LATENCY_MS);
+    const key = decodeURIComponent(String(params['supplierKey']));
+    const outcome = getSupplierProfile(db.contracts, key, Date.now());
+    if (isProblem(outcome)) return problemResponse(outcome);
+    return HttpResponse.json(outcome);
   }),
 
   // ── Búsquedas guardadas ─────────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ import { SourceBadge, StatusBadge } from '../../shared/ui/badges';
 import { BackLink, SecopLink } from '../../shared/ui/detail-parts';
 import { IndustryChips, LocationCell } from '../../shared/ui/record-cells';
 import { ErrorState, Skeleton } from '../../shared/ui/states';
+import { computeSupplierKey } from '../../shared/utils/supplier';
 
 /** `/contratos/:source/:sourceId`: todos los campos del contrato y su proceso de origen. */
 @Component({
@@ -98,7 +99,15 @@ import { ErrorState, Skeleton } from '../../shared/ui/states';
               <div>
                 <dt class="text-xs font-medium text-muted uppercase">Contratista</dt>
                 <dd class="mt-1 text-sm">
-                  {{ c.supplierName ?? '—' }}
+                  @if (supplierKey(); as key) {
+                    <a
+                      class="font-medium text-ink hover:text-accent hover:underline"
+                      [routerLink]="['/contratistas', key]"
+                      >{{ c.supplierName }}</a
+                    >
+                  } @else {
+                    {{ c.supplierName ?? '—' }}
+                  }
                   @if (c.supplierIsSme) {
                     <span class="badge-info ms-1">Mipyme</span>
                   }
@@ -203,6 +212,10 @@ export class ContractDetailPage {
   protected readonly contract = computed(() =>
     this.detail.hasValue() ? this.detail.value() : undefined,
   );
+  protected readonly supplierKey = computed(() => {
+    const c = this.contract();
+    return c ? computeSupplierKey(c.supplierNit, c.supplierName) : null;
+  });
   protected readonly notFound = computed(
     () => (this.detail.error() as { status?: number } | undefined)?.status === 404,
   );

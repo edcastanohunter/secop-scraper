@@ -140,6 +140,30 @@ describe('servicios de la API', () => {
       summary.flush({});
     });
 
+    it('topSuppliers y supplierProfile consultan los endpoints de contratistas (SPEC 16)', () => {
+      const stats = TestBed.inject(StatsService);
+      const filters = {
+        ...withDefaults(),
+        dateFrom: '2025-01-01',
+        dateTo: '2025-12-31',
+      };
+      read(() => stats.topSuppliers(() => ({ filters, sort: 'amount', limit: 20 })));
+      read(() => stats.supplierProfile(() => 'nombre:DIANA MARCELA PENA'));
+
+      const topReq = expectGet('/stats/top-suppliers');
+      expect(params(topReq)).toEqual({
+        dateFrom: ['2025-01-01'],
+        dateTo: ['2025-12-31'],
+        sort: ['amount'],
+        limit: ['20'],
+      });
+      expect(params(topReq)).not.toHaveProperty('kind');
+      topReq.flush({ items: [] });
+
+      const profileReq = expectGet('/stats/suppliers/nombre%3ADIANA%20MARCELA%20PENA');
+      profileReq.flush({ supplierKey: 'nombre:DIANA MARCELA PENA' });
+    });
+
     it('catálogos: departamentos, industrias y municipios con q y departmentCode', () => {
       const catalog = TestBed.inject(CatalogService);
       read(() => catalog.departments());

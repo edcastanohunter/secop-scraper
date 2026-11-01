@@ -57,6 +57,31 @@ export const routes: Routes = [
           import('./features/contracts/contract-detail.page').then((m) => m.ContractDetailPage),
       },
       {
+        path: 'estadisticas/contratistas',
+        title: 'Ranking de contratistas',
+        canActivate: [roleGuard('procurement:read')],
+        data: { [FILTER_DEFAULTS_KEY]: dashboardDefaults() },
+        loadComponent: () =>
+          import('./features/contractors/contractors-ranking.page').then(
+            (m) => m.ContractorsRankingPage,
+          ),
+      },
+      {
+        path: 'ranking',
+        redirectTo: 'estadisticas/contratistas',
+        pathMatch: 'full',
+      },
+      {
+        path: 'contratistas/:supplierKey',
+        title: 'Ficha de contratista',
+        canActivate: [roleGuard('procurement:read')],
+        providers: [provideCharts()],
+        loadComponent: () =>
+          import('./features/contractors/contractor-profile.page').then(
+            (m) => m.ContractorProfilePage,
+          ),
+      },
+      {
         path: 'buscar',
         title: 'Buscar',
         canActivate: [roleGuard('procurement:read')],
