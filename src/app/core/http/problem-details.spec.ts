@@ -91,6 +91,39 @@ describe('códigos de dominio', () => {
     expect(problemMessage(problem)).toBe(
       'Ya tienes una búsqueda guardada con ese nombre. Elige otro.',
     );
+
+    expect(
+      problemMessage(
+        toProblem(
+          httpError(400, {
+            errorCode: 'Suppliers.InvalidKey',
+            detail: 'The contractor key is invalid.',
+          }),
+        ),
+      ),
+    ).toBe('Identificador de contratista no válido.');
+
+    expect(
+      problemMessage(
+        toProblem(
+          httpError(404, {
+            errorCode: 'Suppliers.NotFound',
+            detail: 'Contractor not found.',
+          }),
+        ),
+      ),
+    ).toBe('No encontramos este contratista o no tiene contratos registrados.');
+
+    expect(
+      problemMessage(
+        toProblem(
+          httpError(400, {
+            errorCode: 'Suppliers.FilterNotSupported',
+            detail: 'Supplier filter is only supported for signed contracts.',
+          }),
+        ),
+      ),
+    ).toBe('El filtro por contratista solo aplica a contratos firmados.');
   });
 
   it('exportRowCount lee el conteo de Export.TooManyRows', () => {

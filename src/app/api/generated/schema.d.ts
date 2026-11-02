@@ -175,6 +175,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stats/top-suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The contractors with the most records (limit 1-50, default 10, sort count or amount). dateFrom and dateTo are required. */
+        get: operations["GetStatsTopSuppliers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stats/suppliers/{supplierKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Contractor profile across their entire contract history. */
+        get: operations["GetSupplierProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/meta/freshness": {
         parameters: {
             query?: never;
@@ -1123,6 +1157,11 @@ export interface components {
             attribution: components["schemas"]["Attribution"];
             freshness: components["schemas"]["StatsFreshness"];
         };
+        StatsListOfSupplierBucket: {
+            items: components["schemas"]["SupplierBucket"][];
+            attribution: components["schemas"]["Attribution"];
+            freshness: components["schemas"]["StatsFreshness"];
+        };
         StatsListOfTimeSeriesPoint: {
             items: components["schemas"]["TimeSeriesPoint"][];
             attribution: components["schemas"]["Attribution"];
@@ -1143,6 +1182,32 @@ export interface components {
             dateFrom: string;
             /** Format: date */
             dateTo: string;
+            attribution: components["schemas"]["Attribution"];
+            freshness: components["schemas"]["StatsFreshness"];
+        };
+        SupplierBucket: {
+            supplierKey: string;
+            supplierName: string;
+            supplierNit: null | string;
+            /** Format: int64 */
+            count: number;
+            /** Format: double */
+            totalAmount: number;
+        };
+        SupplierProfile: {
+            supplierKey: string;
+            supplierName: string;
+            supplierNit: null | string;
+            isSme: null | boolean;
+            sources: string[];
+            /** Format: date-time */
+            firstSignedAt: null | string;
+            /** Format: date-time */
+            lastSignedAt: null | string;
+            /** Format: int64 */
+            count: number;
+            /** Format: double */
+            totalAmount: number;
             attribution: components["schemas"]["Attribution"];
             freshness: components["schemas"]["StatsFreshness"];
         };
@@ -1357,6 +1422,7 @@ export interface operations {
                 modality?: string[];
                 dateFrom?: string;
                 dateTo?: string;
+                supplier?: string;
             };
             header?: never;
             path?: never;
@@ -1367,6 +1433,8 @@ export interface operations {
             /** @description OK */
             200: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1376,6 +1444,8 @@ export interface operations {
             /** @description Bad Request */
             400: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1398,6 +1468,7 @@ export interface operations {
                 modality?: string[];
                 dateFrom?: string;
                 dateTo?: string;
+                supplier?: string;
                 level?: string;
             };
             header?: never;
@@ -1409,6 +1480,8 @@ export interface operations {
             /** @description OK */
             200: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1418,6 +1491,8 @@ export interface operations {
             /** @description Bad Request */
             400: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1440,6 +1515,7 @@ export interface operations {
                 modality?: string[];
                 dateFrom?: string;
                 dateTo?: string;
+                supplier?: string;
             };
             header?: never;
             path?: never;
@@ -1450,6 +1526,8 @@ export interface operations {
             /** @description OK */
             200: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1459,6 +1537,8 @@ export interface operations {
             /** @description Bad Request */
             400: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1481,6 +1561,7 @@ export interface operations {
                 modality?: string[];
                 dateFrom?: string;
                 dateTo?: string;
+                supplier?: string;
             };
             header?: never;
             path?: never;
@@ -1491,6 +1572,8 @@ export interface operations {
             /** @description OK */
             200: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1500,6 +1583,8 @@ export interface operations {
             /** @description Bad Request */
             400: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1522,6 +1607,7 @@ export interface operations {
                 modality?: string[];
                 dateFrom?: string;
                 dateTo?: string;
+                supplier?: string;
                 interval?: string;
             };
             header?: never;
@@ -1533,6 +1619,8 @@ export interface operations {
             /** @description OK */
             200: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1542,6 +1630,8 @@ export interface operations {
             /** @description Bad Request */
             400: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1564,6 +1654,7 @@ export interface operations {
                 modality?: string[];
                 dateFrom?: string;
                 dateTo?: string;
+                supplier?: string;
                 limit?: number;
             };
             header?: never;
@@ -1575,6 +1666,8 @@ export interface operations {
             /** @description OK */
             200: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1584,6 +1677,102 @@ export interface operations {
             /** @description Bad Request */
             400: {
                 headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetStatsTopSuppliers: {
+        parameters: {
+            query?: {
+                kind?: string;
+                industry?: string[];
+                department?: string[];
+                municipality?: string[];
+                source?: string;
+                status?: string[];
+                onlyActive?: boolean;
+                competitiveOnly?: boolean;
+                modality?: string[];
+                dateFrom?: string;
+                dateTo?: string;
+                supplier?: string;
+                sort?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatsListOfSupplierBucket"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetSupplierProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                supplierKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierProfile"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    /** @description Request duration in ms (`app;dur`) and whether every lookup was served from the cache (`cache;desc="hit"|"miss"`). */
+                    "Server-Timing"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1630,6 +1819,7 @@ export interface operations {
                 sort?: string;
                 page?: number;
                 pageSize?: number;
+                supplier?: string;
                 onlyActive?: boolean;
                 competitiveOnly?: boolean;
             };
@@ -1795,6 +1985,7 @@ export interface operations {
                 sort?: string;
                 page?: number;
                 pageSize?: number;
+                supplier?: string;
                 onlyActive?: boolean;
                 competitiveOnly?: boolean;
             };
@@ -1881,6 +2072,7 @@ export interface operations {
                 sort?: string;
                 page?: number;
                 pageSize?: number;
+                supplier?: string;
                 onlyActive?: boolean;
                 competitiveOnly?: boolean;
             };
@@ -2055,6 +2247,7 @@ export interface operations {
                 sort?: string;
                 page?: number;
                 pageSize?: number;
+                supplier?: string;
             };
             header?: never;
             path?: never;
@@ -2139,6 +2332,7 @@ export interface operations {
                 sort?: string;
                 page?: number;
                 pageSize?: number;
+                supplier?: string;
             };
             header?: never;
             path?: never;

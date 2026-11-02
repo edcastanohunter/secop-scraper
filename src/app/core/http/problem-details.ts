@@ -132,6 +132,9 @@ const ERROR_CODE_MESSAGES: Record<string, string> = {
   'Catalog.AliasExists': 'Esa escritura ya está asignada a un municipio.',
   'Catalog.MunicipalityNotFound': 'No existe un municipio con ese código DIVIPOLA.',
   'Catalog.MappingNotFound': 'No hay un mapeo para ese prefijo.',
+  'Suppliers.InvalidKey': 'Identificador de contratista no válido.',
+  'Suppliers.NotFound': 'No encontramos este contratista o no tiene contratos registrados.',
+  'Suppliers.FilterNotSupported': 'El filtro por contratista solo aplica a contratos firmados.',
 };
 
 /** Filas que tendría una exportación rechazada con `Export.TooManyRows`, si el detalle las trae. */

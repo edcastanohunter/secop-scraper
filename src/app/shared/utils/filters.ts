@@ -13,6 +13,7 @@ export interface SearchFilters {
   department: string[];
   municipality: string[];
   entity: string;
+  supplier: string;
   source: Source | null;
   status: string[];
   modality: string[];
@@ -50,6 +51,7 @@ export const BASE_FILTERS: Readonly<SearchFilters> = {
   department: [],
   municipality: [],
   entity: '',
+  supplier: '',
   source: null,
   status: [],
   modality: [],

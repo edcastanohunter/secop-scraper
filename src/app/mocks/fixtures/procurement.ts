@@ -173,6 +173,8 @@ const SUPPLIERS: [string, string, boolean][] = [
   ['Vigilancia Andina Ltda.', '860555666', false],
   ['Distribuidora Médica del Norte S.A.S.', '901777000', true],
   ['Conectividad Rural de Colombia S.A.S.', '901222333', true],
+  ['ACME S.A.S.', '900123456', true],
+  ['DIANA MARCELA PENA', '', false],
 ];
 
 const PHASES: Record<ProcessStatus, string> = {

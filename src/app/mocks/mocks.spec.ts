@@ -3,10 +3,13 @@ import { BLOCKED_PROCESS_ID } from './fixtures/procurement';
 import {
   parseText,
   readQuery,
+  searchContracts,
   searchProcesses,
   statsFacets,
   statsRows,
   statsTimeSeries,
+  statsTopSuppliers,
+  getSupplierProfile,
   validateQuery,
 } from './query';
 
@@ -157,5 +160,41 @@ describe('mocks de la API', () => {
       ok: false,
       problem: { status: 404 },
     });
+  });
+
+  it('contratistas (SPEC 16): ranking por cantidad/monto, perfil y filtro en contratos', () => {
+    const q = query('dateFrom=2023-01-01&dateTo=2026-12-31');
+    const topByCount = statsTopSuppliers(db.contracts, q, 'count', 10, now);
+    expect(topByCount.items.length).toBeGreaterThan(0);
+    expect(topByCount.items[0].count).toBeGreaterThanOrEqual(
+      topByCount.items[topByCount.items.length - 1].count,
+    );
+
+    const topByAmount = statsTopSuppliers(db.contracts, q, 'amount', 10, now);
+    expect(topByAmount.items.length).toBeGreaterThan(0);
+    expect(topByAmount.items[0].totalAmount).toBeGreaterThanOrEqual(
+      topByAmount.items[topByAmount.items.length - 1].totalAmount,
+    );
+
+    // Profile retrieval
+    const firstKey = topByCount.items[0].supplierKey;
+    const profile = getSupplierProfile(db.contracts, firstKey, now);
+    expect('supplierKey' in profile).toBe(true);
+    if ('supplierKey' in profile) {
+      expect(profile.supplierKey).toBe(firstKey);
+      expect(profile.count).toBeGreaterThan(0);
+      expect(profile.totalAmount).toBeGreaterThan(0);
+    }
+
+    // Invalid key and not found
+    const invalid = getSupplierProfile(db.contracts, 'invalid-key', now);
+    expect(invalid).toMatchObject({ status: 400, errorCode: 'Suppliers.InvalidKey' });
+
+    const notFound = getSupplierProfile(db.contracts, 'nit:9999999999', now);
+    expect(notFound).toMatchObject({ status: 404, errorCode: 'Suppliers.NotFound' });
+
+    // Contracts filtered by supplier
+    const filteredContracts = searchContracts(db.contracts, query(`supplier=${firstKey}`), now);
+    expect(filteredContracts.items.length).toBeGreaterThan(0);
   });
 });

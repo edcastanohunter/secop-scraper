@@ -164,6 +164,9 @@ export type TimeSeriesPoint = Schemas['TimeSeriesPoint'];
 export type IndustryBucket = Schemas['IndustryBucket'];
 export type LocationBucket = Schemas['LocationBucket'];
 export type EntityBucket = Schemas['EntityBucket'];
+export type SupplierBucket = Schemas['SupplierBucket'];
+export type SupplierProfile = Schemas['SupplierProfile'];
+export type TopSuppliersSort = 'count' | 'amount';
 export type FacetValue = Schemas['FacetValue'];
 export type Facets = Schemas['Facets'];
 
