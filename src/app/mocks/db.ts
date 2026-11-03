@@ -1,6 +1,8 @@
 import {
   AlertDelivery,
+  ContractChange,
   ContractDetail,
+  ContractRefreshResult,
   CreateSavedSearchRequest,
   DATASET_KEYS,
   DatasetKey,
@@ -130,6 +132,45 @@ export class MockDb {
     }
     const job = this.enrichmentJobs.get(sourceId);
     return ok(job ? { ...found, enrichment: this.enrichmentFor(found, job) } : found);
+  }
+
+  private readonly lastRefresh = new Map<string, number>();
+
+  /** SPEC 17: relee el contrato. El implausible sigue igual (la fuente está mal); el resto cambia. */
+  refreshContract(source: string, sourceId: string): Outcome<ContractRefreshResult> | 'cooldown' {
+    const found = this.contracts.find((c) => c.source === source && c.sourceId === sourceId);
+    if (!found || source !== 'secop2') {
+      return fail(
+        problem(
+          404,
+          'Contracts.NotFound',
+          'No contract with that source and id has been ingested.',
+        ),
+      );
+    }
+    const now = Date.now();
+    const last = this.lastRefresh.get(sourceId);
+    if (last !== undefined && now - last < 60_000) return 'cooldown';
+    this.lastRefresh.set(sourceId, now);
+
+    const refreshedAt = new Date(now).toISOString();
+    const changes: ContractChange[] = [];
+    if (!found.valueFlag) {
+      const before = found.paidValue ?? 0;
+      const after = Math.min(found.value ?? before, before + 1_000_000);
+      if (after !== before) changes.push({ field: 'paidValue', before, after });
+      found.paidValue = after;
+      found.sourceUpdatedAt = refreshedAt;
+    }
+    found.lastRefreshedAt = refreshedAt;
+    return ok({
+      sourceId,
+      changed: changes.length > 0,
+      refreshedAt,
+      sourceUpdatedAt: found.sourceUpdatedAt ?? null,
+      changes,
+      contract: { ...found },
+    });
   }
 
   contract(source: string, sourceId: string): Outcome<ContractDetail> {

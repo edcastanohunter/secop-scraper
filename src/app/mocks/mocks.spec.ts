@@ -1,5 +1,5 @@
 import { MockDb } from './db';
-import { BLOCKED_PROCESS_ID } from './fixtures/procurement';
+import { BLOCKED_PROCESS_ID, IMPLAUSIBLE_CONTRACT_ID } from './fixtures/procurement';
 import {
   parseText,
   readQuery,
@@ -22,6 +22,26 @@ describe('mocks de la API', () => {
   beforeEach(() => {
     clock = now;
     db = new MockDb(() => clock);
+  });
+
+  it('SPEC 17: un contrato queda marcado como sospechoso y el refresh no lo corrige', () => {
+    const flagged = db.contracts.find((c) => c.sourceId === IMPLAUSIBLE_CONTRACT_ID);
+    expect(flagged?.valueFlag).toBe('implausible');
+    const first = db.refreshContract('secop2', IMPLAUSIBLE_CONTRACT_ID);
+    expect(first).not.toBe('cooldown');
+    if (first === 'cooldown' || !first.ok) throw new Error('refresh falló');
+    expect(first.value.changed).toBe(false);
+    expect(first.value.contract.valueFlag).toBe('implausible');
+    // Segundo intento dentro de los 60 s.
+    expect(db.refreshContract('secop2', IMPLAUSIBLE_CONTRACT_ID)).toBe('cooldown');
+  });
+
+  it('SPEC 17: solo SECOP II es actualizable', () => {
+    const secop1 = db.contracts.find((c) => c.source === 'secop1');
+    if (secop1) expect(secop1.refreshable).toBe(false);
+    const result = db.refreshContract('secop1', 'x');
+    expect(result).not.toBe('cooldown');
+    expect(result !== 'cooldown' && result.ok).toBe(false);
   });
 
   const query = (search: string) => readQuery(new URLSearchParams(search));

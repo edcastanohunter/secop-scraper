@@ -1,14 +1,46 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { formatDate, DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { ContractsService } from '../../api/contracts.service';
+import { ContractChange, ContractDetail } from '../../api/models';
+import { HasRoleDirective } from '../../core/auth/has-role.directive';
+import { problemMessage, toProblem } from '../../core/http/problem-details';
+import { parseRetryAfter } from '../../core/http/retry-after';
 import { CopCurrencyPipe } from '../../shared/pipes/cop-currency.pipe';
-import { SourceBadge, StatusBadge } from '../../shared/ui/badges';
+import { SourceBadge, StatusBadge, ValueFlagBadge } from '../../shared/ui/badges';
 import { BackLink, SecopLink } from '../../shared/ui/detail-parts';
 import { IndustryChips, LocationCell } from '../../shared/ui/record-cells';
 import { ErrorState, Skeleton } from '../../shared/ui/states';
+import { formatCop } from '../../shared/utils/format';
+import { statusLabel } from '../../shared/utils/labels';
 import { computeSupplierKey } from '../../shared/utils/supplier';
+
+/** Segundos de espera entre actualizaciones del mismo contrato (lo impone el backend). */
+const REFRESH_COOLDOWN_S = 60;
+
+const CHANGE_LABELS: Record<ContractChange['field'], string> = {
+  value: 'Valor',
+  paidValue: 'Pagado',
+  status: 'Estado',
+  sourceUpdatedAt: 'Fecha de actualización en la fuente',
+  endsAt: 'Fin de vigencia',
+};
+
+type RefreshOutcome =
+  | { kind: 'changed'; changes: readonly ContractChange[] }
+  | { kind: 'same'; sourceUpdatedAt: string | null }
+  | { kind: 'error'; message: string };
 
 /** `/contratos/:source/:sourceId`: todos los campos del contrato y su proceso de origen. */
 @Component({
@@ -21,6 +53,8 @@ import { computeSupplierKey } from '../../shared/utils/supplier';
     SecopLink,
     StatusBadge,
     SourceBadge,
+    ValueFlagBadge,
+    HasRoleDirective,
     IndustryChips,
     LocationCell,
     ErrorState,
@@ -60,7 +94,12 @@ import { computeSupplierKey } from '../../shared/utils/supplier';
             <dl class="grid grid-cols-2 gap-x-8 gap-y-3 sm:flex">
               <div>
                 <dt class="text-xs font-medium text-muted uppercase">Valor</dt>
-                <dd class="text-xl font-semibold tabular">{{ c.value | copCurrency }}</dd>
+                <dd class="text-xl font-semibold tabular" [class.text-muted]="!!c.valueFlag">
+                  {{ c.value | copCurrency }}
+                  @if (c.valueFlag) {
+                    <app-value-flag-badge class="ms-2 align-middle" [flag]="c.valueFlag" />
+                  }
+                </dd>
               </div>
               <div>
                 <dt class="text-xs font-medium text-muted uppercase">Pagado</dt>
@@ -87,6 +126,83 @@ import { computeSupplierKey } from '../../shared/utils/supplier';
             </dl>
             <app-secop-link [url]="c.url" />
           </div>
+          @if (c.valueFlag) {
+            <p class="mt-3 text-sm text-muted" role="note">
+              Este valor es inusualmente alto y probablemente es un error en la fuente de datos
+              (SECOP). No lo use en análisis sin verificarlo.
+            </p>
+          }
+
+          @if (c.refreshable) {
+            <div *appHasRole="'procurement:refresh'" class="mt-5 border-t border-line pt-4">
+              <div class="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  [disabled]="refreshing() || cooldown() > 0"
+                  (click)="refresh()"
+                >
+                  @if (refreshing()) {
+                    <span
+                      class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                      aria-hidden="true"
+                    ></span>
+                    Actualizando…
+                  } @else if (cooldown() > 0) {
+                    Disponible en {{ cooldown() }} s
+                  } @else {
+                    Actualizar desde SECOP
+                  }
+                </button>
+                @if (c.lastRefreshedAt) {
+                  <span class="text-sm text-muted" [title]="absolute(c.lastRefreshedAt)">
+                    Actualizado por última vez: {{ relative(c.lastRefreshedAt) }}
+                  </span>
+                }
+              </div>
+
+              <div aria-live="polite" class="mt-3">
+                @if (outcome(); as o) {
+                  @switch (o.kind) {
+                    @case ('changed') {
+                      <div class="rounded-lg bg-success-soft p-3 text-sm" role="status">
+                        <p class="font-medium">Contrato actualizado con los datos de SECOP:</p>
+                        <ul class="mt-1 list-disc ps-5">
+                          @for (ch of changesOf(o); track ch.field) {
+                            <li>
+                              {{ changeLabel(ch.field) }}: {{ changeValue(ch, ch.before) }} →
+                              {{ changeValue(ch, ch.after) }}
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                    @case ('same') {
+                      <div class="rounded-lg bg-sunken p-3 text-sm" role="status">
+                        <p>SECOP todavía publica los mismos datos para este contrato.</p>
+                        @if (sourceDateOf(o); as at) {
+                          <p class="text-muted">
+                            Fecha de actualización en la fuente: {{ absolute(at) }}
+                          </p>
+                        }
+                        @if (c.valueFlag) {
+                          <p class="mt-1">
+                            Si el valor es incorrecto, la entidad contratante debe corregirlo en
+                            SECOP II.
+                          </p>
+                        }
+                      </div>
+                    }
+                    @case ('error') {
+                      <p class="rounded-lg bg-danger-soft p-3 text-sm" role="alert">
+                        {{ messageOf(o) }}
+                      </p>
+                    }
+                  }
+                }
+              </div>
+            </div>
+          }
         </header>
 
         <div class="grid gap-6 lg:grid-cols-3">
@@ -209,9 +325,104 @@ export class ContractDetailPage {
     source: this.source(),
     sourceId: this.sourceId(),
   }));
-  protected readonly contract = computed(() =>
-    this.detail.hasValue() ? this.detail.value() : undefined,
+  /** Contrato devuelto por el último refresh; se descarta al cambiar de contrato. */
+  private readonly refreshed = linkedSignal<string, ContractDetail | undefined>({
+    source: () => `${this.source()}/${this.sourceId()}`,
+    computation: () => undefined,
+  });
+  protected readonly contract = computed(
+    () => this.refreshed() ?? (this.detail.hasValue() ? this.detail.value() : undefined),
   );
+
+  private readonly contractsApi = inject(ContractsService);
+  protected readonly refreshing = signal(false);
+  protected readonly cooldown = signal(0);
+  protected readonly outcome = linkedSignal<string, RefreshOutcome | null>({
+    source: () => `${this.source()}/${this.sourceId()}`,
+    computation: () => null,
+  });
+  private cooldownTimer: ReturnType<typeof setInterval> | undefined;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearInterval(this.cooldownTimer));
+  }
+
+  protected refresh(): void {
+    if (this.refreshing() || this.cooldown() > 0) return;
+    this.refreshing.set(true);
+    this.outcome.set(null);
+    this.contractsApi.refresh({ source: this.source(), sourceId: this.sourceId() }).subscribe({
+      next: (result) => {
+        this.refreshing.set(false);
+        this.refreshed.set(result.contract);
+        this.outcome.set(
+          result.changed
+            ? { kind: 'changed', changes: result.changes }
+            : { kind: 'same', sourceUpdatedAt: result.sourceUpdatedAt },
+        );
+        this.startCooldown(REFRESH_COOLDOWN_S);
+      },
+      error: (error: unknown) => {
+        this.refreshing.set(false);
+        const problem = toProblem(error);
+        this.outcome.set({ kind: 'error', message: problemMessage(problem) });
+        if (problem.status === 429) {
+          const header =
+            error instanceof HttpErrorResponse ? error.headers.get('Retry-After') : null;
+          this.startCooldown(parseRetryAfter(header, Date.now()) ?? REFRESH_COOLDOWN_S);
+        }
+      },
+    });
+  }
+
+  private startCooldown(seconds: number): void {
+    clearInterval(this.cooldownTimer);
+    this.cooldown.set(seconds);
+    this.cooldownTimer = setInterval(() => {
+      this.cooldown.update((s) => Math.max(0, s - 1));
+      if (this.cooldown() === 0) clearInterval(this.cooldownTimer);
+    }, 1000);
+  }
+
+  // Estrechan la unión `RefreshOutcome` dentro de `@switch`, que no la discrimina.
+  protected changesOf(o: RefreshOutcome): readonly ContractChange[] {
+    return o.kind === 'changed' ? o.changes : [];
+  }
+  protected sourceDateOf(o: RefreshOutcome): string | null {
+    return o.kind === 'same' ? o.sourceUpdatedAt : null;
+  }
+  protected messageOf(o: RefreshOutcome): string {
+    return o.kind === 'error' ? o.message : '';
+  }
+
+  protected changeLabel(field: ContractChange['field']): string {
+    return CHANGE_LABELS[field];
+  }
+
+  protected changeValue(change: ContractChange, value: number | string | null): string {
+    if (value === null) return '—';
+    if (change.field === 'value' || change.field === 'paidValue') return formatCop(Number(value));
+    if (change.field === 'status') return statusLabel(String(value));
+    return formatDate(String(value), 'dd/MM/yyyy', 'es-CO', '-0500');
+  }
+
+  protected absolute(iso: string): string {
+    return formatDate(iso, 'dd/MM/yyyy HH:mm', 'es-CO', '-0500');
+  }
+
+  protected relative(iso: string): string {
+    const seconds = Math.round((Date.parse(iso) - Date.now()) / 1000);
+    const units: [Intl.RelativeTimeFormatUnit, number][] = [
+      ['day', 86_400],
+      ['hour', 3_600],
+      ['minute', 60],
+    ];
+    const rtf = new Intl.RelativeTimeFormat('es-CO', { numeric: 'auto' });
+    for (const [unit, size] of units) {
+      if (Math.abs(seconds) >= size) return rtf.format(Math.round(seconds / size), unit);
+    }
+    return 'hace un momento';
+  }
   protected readonly supplierKey = computed(() => {
     const c = this.contract();
     return c ? computeSupplierKey(c.supplierNit, c.supplierName) : null;

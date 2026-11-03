@@ -2,6 +2,7 @@
 export const ROLES = [
   'procurement:read',
   'procurement:export',
+  'procurement:refresh',
   'alerts:manage',
   'catalog:read',
   'catalog:write',

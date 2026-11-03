@@ -20,6 +20,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** Proceso SECOP II cuyo enriquecimiento responde 503 `Scraping.HostBlocked` (para e2e). */
 export const BLOCKED_PROCESS_ID = 'CO1.REQ.7009999';
 
+/** Contrato SECOP II con el valor multiplicado por 1000 (`valueFlag: 'implausible'`), SPEC 17. */
+export const IMPLAUSIBLE_CONTRACT_ID = 'CO1.PCCNTR.8000300';
+
 function prng(seed: number): () => number {
   let state = seed;
   return () => {
@@ -430,6 +433,7 @@ export function contractsFixture(processes: ProcessDetail[], now = Date.now()): 
     const paidShare = status === 'finished' ? 1 : status === 'signed' ? 0 : random() * 0.8;
     const sourceId =
       process.source === 'secop2' ? `CO1.PCCNTR.${8000300 + i * 211}` : `26-12-${14000 + i}-1`;
+    const implausible = sourceId === IMPLAUSIBLE_CONTRACT_ID;
     return {
       source: process.source,
       sourceId,
@@ -455,7 +459,11 @@ export function contractsFixture(processes: ProcessDetail[], now = Date.now()): 
       signedAt: iso(signedAt),
       startsAt: iso(signedAt + 3 * DAY_MS),
       endsAt: iso(signedAt + (90 + Math.floor(random() * 270)) * DAY_MS),
-      value,
+      value: implausible ? value * 1000 : value,
+      valueFlag: implausible ? 'implausible' : null,
+      refreshable: process.source === 'secop2',
+      lastRefreshedAt: process.source === 'secop2' ? iso(now - 3 * DAY_MS) : null,
+      sourceUpdatedAt: iso(now - (i % 4) * DAY_MS),
       paidValue: roundMoney(value * paidShare),
       supplierName,
       supplierNit,
