@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="utf-8" />
+    <title>SECOP Radar — Error temporal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0a6b60" />
+    <style>
+      :root {
+        --surface: #f6f7f9;
+        --raised: #ffffff;
+        --line: #d6dbe1;
+        --ink: #141920;
+        --muted: #4f5866;
+        --accent: #0a6b60;
+        --accent-strong: #07514a;
+        --on-accent: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --surface: #0f1318;
+          --raised: #171c23;
+          --line: #2b323c;
+          --ink: #e8ebef;
+          --muted: #a3acb9;
+          --accent: #4fd1bf;
+          --accent-strong: #86e3d6;
+          --on-accent: #0f1318;
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--surface);
+        color: var(--ink);
+        padding: 1.5rem;
+        box-sizing: border-box;
+      }
+      .card {
+        background: var(--raised);
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        padding: 2.5rem 2rem;
+        max-width: 28rem;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+      }
+      .code {
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+      h1 {
+        margin: 0.5rem 0 0.75rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+      }
+      p {
+        margin: 0 0 1.5rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      a {
+        display: inline-block;
+        background: var(--accent);
+        color: var(--on-accent);
+        text-decoration: none;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: opacity 0.15s ease;
+      }
+      a:hover {
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="code">500 / 502 / 503</div>
+      <h1>Error temporal del servicio</h1>
+      <p>
+        El servidor no pudo responder a tu solicitud en este momento. Por favor recarga la página o inténtalo en unos instantes.
+      </p>
+      <a href="/">Volver a SECOP Radar</a>
+    </div>
+  </body>
+</html>
