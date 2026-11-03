@@ -9,9 +9,12 @@ FreeMarker, así las actualizaciones de Keycloak no lo rompen.
 
 ```
 secop-radar/login/
-  theme.properties                 parent=keycloak.v2, darkMode, locale es
+  theme.properties                 parent=keycloak.v2, darkMode, favicons, locale es
   resources/css/secop-radar.css    tokens → variables de PatternFly, tarjeta, campos, botones
   resources/img/logo.svg           marca del radar (se pinta con el acento vía máscara CSS)
+  resources/img/favicon.ico        favicon del radar para pestañas del navegador en login y errores
+  resources/img/favicon.svg        favicon vectorial del radar
+  resources/img/apple-touch-icon.png ícono táctil para iOS/móviles
   messages/messages_es.properties  textos ("Inicia sesión en SECOP Radar", "Crear cuenta"…)
 ```
 
