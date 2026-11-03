@@ -39,9 +39,31 @@ test.describe('Shell', () => {
     await expect(html).toHaveClass(/dark/);
   });
 
-  test('una ruta inexistente muestra el 404 amable', async ({ page }) => {
+  test('una ruta inexistente muestra el 404 amable y conserva el favicon', async ({ page }) => {
     await page.goto('/no-existe');
     await expect(page.getByRole('heading', { name: 'No encontramos esta página' })).toBeVisible();
+    await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute(
+      'href',
+      '/favicon.svg',
+    );
+    await expect(page.locator('link[rel="shortcut icon"]')).toHaveAttribute('href', '/favicon.ico');
+  });
+
+  test('el favicon está presente en la página principal', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute(
+      'href',
+      '/favicon.svg',
+    );
+    await expect(page.locator('link[rel="icon"][sizes="32x32"]')).toHaveAttribute(
+      'href',
+      '/favicon.ico',
+    );
+    await expect(page.locator('link[rel="shortcut icon"]')).toHaveAttribute('href', '/favicon.ico');
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+      'href',
+      '/apple-touch-icon.png',
+    );
   });
 
   test('la página Acerca de los datos no tiene violaciones de accesibilidad', async ({ page }) => {
