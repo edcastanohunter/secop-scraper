@@ -74,7 +74,7 @@ test.describe('Contratos', () => {
     await list.getByRole('link').first().click();
     await expect(page).toHaveURL(/\/contratos\/secop[12]\//);
     await expect(page.getByRole('heading', { name: 'Ficha del contrato' })).toBeVisible();
-    await expect(page.getByText('Contratista')).toBeVisible();
+    await expect(page.getByText('Contratista', { exact: true })).toBeVisible();
   });
 });
 

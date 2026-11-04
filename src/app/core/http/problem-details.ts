@@ -129,6 +129,13 @@ const ERROR_CODE_MESSAGES: Record<string, string> = {
   'Ingestion.RunInProgress': 'Ya hay un run en cola o en curso para ese dataset.',
   'Procurement.ProcessNotFound': 'No encontramos este proceso.',
   'Procurement.ContractNotFound': 'No encontramos este contrato.',
+  'Contracts.NotFound': 'No encontramos este contrato.',
+  'Contracts.NotInSource':
+    'SECOP ya no lista este contrato. Conservamos la copia que tenemos guardada.',
+  'Contracts.RefreshCooldown':
+    'Este contrato se actualizó hace menos de un minuto. Espera un momento para volver a intentarlo.',
+  'Contracts.SourceUnavailable':
+    'El servicio de datos de SECOP no está disponible. Inténtalo de nuevo más tarde.',
   'Catalog.AliasExists': 'Esa escritura ya está asignada a un municipio.',
   'Catalog.MunicipalityNotFound': 'No existe un municipio con ese código DIVIPOLA.',
   'Catalog.MappingNotFound': 'No hay un mapeo para ese prefijo.',

@@ -10,7 +10,7 @@ import { ChartCard } from '../../shared/charts/chart-card';
 import { chartPalette } from '../../shared/charts/chart-theme';
 import { CopCurrencyPipe } from '../../shared/pipes/cop-currency.pipe';
 import { ExportButton } from '../../shared/saved-search/export-button';
-import { SourceBadge, StatusBadge } from '../../shared/ui/badges';
+import { SourceBadge, StatusBadge, ValueFlagBadge } from '../../shared/ui/badges';
 import { BackLink } from '../../shared/ui/detail-parts';
 import { FreshnessNote } from '../../shared/ui/freshness-note';
 import { KpiCard } from '../../shared/ui/kpi-card';
@@ -43,6 +43,7 @@ import {
     BackLink,
     SourceBadge,
     StatusBadge,
+    ValueFlagBadge,
     LocationCell,
     KpiCard,
     ChartCard,
@@ -347,6 +348,12 @@ import {
                 />
               </div>
             } @else {
+              @if (hasFlagged()) {
+                <p class="badge-warning !whitespace-normal" role="note">
+                  Incluye contratos con valores sospechosos: los montos totales de este contratista
+                  pueden estar inflados por un error en la fuente.
+                </p>
+              }
               <!-- Tabla de contratos -->
               <div class="card hidden overflow-x-auto md:block">
                 <table class="table-base">
@@ -380,7 +387,8 @@ import {
                           <app-location-cell [location]="c.location" />
                         </td>
                         <td class="text-end font-semibold tabular">
-                          {{ c.value | copCurrency }}
+                          {{ c.value | copCurrency
+                          }}<app-value-flag-badge [flag]="c.valueFlag" [compact]="true" />
                         </td>
                         <td class="whitespace-nowrap tabular text-sm">
                           {{ c.signedAt ? (c.signedAt | date) : '—' }}
@@ -414,7 +422,10 @@ import {
                     <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <dt class="text-xs text-muted">Monto</dt>
-                        <dd class="font-semibold tabular">{{ c.value | copCurrency }}</dd>
+                        <dd class="font-semibold tabular">
+                          {{ c.value | copCurrency
+                          }}<app-value-flag-badge [flag]="c.valueFlag" [compact]="true" />
+                        </dd>
                       </div>
                       <div>
                         <dt class="text-xs text-muted">Ubicación</dt>
@@ -598,6 +609,10 @@ export class ContractorProfilePage {
   }));
 
   protected readonly contracts = this.contractsService.list(() => this.contractsListFilters());
+  /** Algún contrato de la página tiene `valueFlag`: los totales podrían estar distorsionados. */
+  protected readonly hasFlagged = computed(
+    () => this.contractsPage()?.items.some((c) => !!c.valueFlag) ?? false,
+  );
   protected readonly contractsPage = computed(() =>
     this.contracts.hasValue() ? this.contracts.value() : undefined,
   );

@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { ContractSummary } from '../../api/models';
 import { CopCurrencyPipe } from '../pipes/cop-currency.pipe';
-import { SourceBadge, StatusBadge } from '../ui/badges';
+import { SourceBadge, StatusBadge, ValueFlagBadge } from '../ui/badges';
 import { IndustryChips, LocationCell } from '../ui/record-cells';
 import { computeSupplierKey } from '../utils/supplier';
 
@@ -17,6 +17,7 @@ import { computeSupplierKey } from '../utils/supplier';
     CopCurrencyPipe,
     StatusBadge,
     SourceBadge,
+    ValueFlagBadge,
     IndustryChips,
     LocationCell,
   ],
@@ -67,7 +68,10 @@ import { computeSupplierKey } from '../utils/supplier';
               </td>
               <td><app-location-cell [location]="item.location" /></td>
               <td><app-industry-chips [industries]="item.industries" [max]="2" /></td>
-              <td class="text-end whitespace-nowrap tabular">{{ item.value | copCurrency }}</td>
+              <td class="text-end whitespace-nowrap tabular">
+                {{ item.value | copCurrency
+                }}<app-value-flag-badge [flag]="item.valueFlag" [compact]="true" />
+              </td>
               <td class="whitespace-nowrap tabular">{{ item.signedAt | date }}</td>
               <td><app-status-badge [status]="item.status" /></td>
             </tr>
@@ -106,7 +110,10 @@ import { computeSupplierKey } from '../utils/supplier';
             </div>
             <div>
               <dt class="text-xs text-muted">Valor</dt>
-              <dd class="font-medium tabular">{{ item.value | copCurrency }}</dd>
+              <dd class="font-medium tabular">
+                {{ item.value | copCurrency
+                }}<app-value-flag-badge [flag]="item.valueFlag" [compact]="true" />
+              </dd>
             </div>
             <div>
               <dt class="text-xs text-muted">Municipio</dt>

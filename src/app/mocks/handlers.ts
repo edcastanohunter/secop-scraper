@@ -234,6 +234,24 @@ export const handlers = [
     await delay(LATENCY_MS);
     return reply(db.contract(String(params['source']), String(params['sourceId'])));
   }),
+  http.post(apiUrl('/contracts/secop2/:sourceId/refresh'), async ({ params }) => {
+    await delay(LATENCY_MS);
+    const outcome = db.refreshContract('secop2', String(params['sourceId']));
+    if (outcome === 'cooldown') {
+      return HttpResponse.json(
+        problem(
+          429,
+          'Contracts.RefreshCooldown',
+          'This contract was refreshed less than 60 seconds ago.',
+        ),
+        {
+          status: 429,
+          headers: { 'Content-Type': 'application/problem+json', 'Retry-After': '60' },
+        },
+      );
+    }
+    return reply(outcome);
+  }),
   http.get(apiUrl('/search'), async ({ request }) => {
     await delay(LATENCY_MS);
     if (new URL(request.url).searchParams.has('supplier')) {

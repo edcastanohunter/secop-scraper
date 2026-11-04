@@ -126,9 +126,12 @@ export type ProcessSummary = Omit<Schemas['ProcessSummary'], 'source' | 'status'
   source: Source;
   status: ProcessStatus;
 };
+/** SPEC 17: `null` o `'implausible'`; un valor futuro desconocido se trata como advertencia genérica. */
+export type ValueFlag = 'implausible' | (string & {});
 export type ContractSummary = Omit<Schemas['ContractSummary'], 'source' | 'status'> & {
   source: Source;
   status: ContractStatus;
+  valueFlag?: ValueFlag | null;
 };
 export type ProcessDetail = Omit<
   Schemas['ProcessDetail'],
@@ -142,7 +145,27 @@ export type ProcessDetail = Omit<
 export type ContractDetail = Omit<Schemas['ContractDetail'], 'source' | 'status'> & {
   source: Source;
   status: ContractStatus;
+  // SPEC 17: aún no están en el OpenAPI generado, se tipan a mano.
+  valueFlag?: ValueFlag | null;
+  refreshable?: boolean;
+  lastRefreshedAt?: string | null;
+  sourceUpdatedAt?: string | null;
 };
+export type ContractChangeField = 'value' | 'paidValue' | 'status' | 'sourceUpdatedAt' | 'endsAt';
+export interface ContractChange {
+  field: ContractChangeField;
+  before: number | string | null;
+  after: number | string | null;
+}
+/** Respuesta de `POST /contracts/secop2/{sourceId}/refresh` (SPEC 17). */
+export interface ContractRefreshResult {
+  sourceId: string;
+  changed: boolean;
+  refreshedAt: string;
+  sourceUpdatedAt: string | null;
+  changes: ContractChange[];
+  contract: ContractDetail;
+}
 export type OpportunityItem = Omit<Schemas['OpportunityItem'], 'kind' | 'source'> & {
   kind: OpportunityKind;
   source: Source;

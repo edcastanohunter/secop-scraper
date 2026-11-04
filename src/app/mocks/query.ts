@@ -419,6 +419,7 @@ export function toContractSummary(c: ContractDetail): ContractSummary {
     startsAt: c.startsAt,
     endsAt: c.endsAt,
     value: c.value,
+    valueFlag: c.valueFlag ?? null,
     paidValue: c.paidValue,
     supplierName: c.supplierName,
     supplierNit: c.supplierNit,
