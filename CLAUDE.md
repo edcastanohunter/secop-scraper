@@ -15,7 +15,7 @@ README "Diferencias OpenAPI vs prompt" records every contract quirk.
 All user-visible text is **Colombian Spanish**; code comments and test names are also in Spanish. Locale
 `es-CO`, currency `COP`, dates `dd/MM/yyyy` at fixed `-0500` (set globally in `app.config.ts`).
 
-Node ≥ 22.12 or ≥ 24. Stay on Angular 21 (Angular 22 needs Node ≥ 24.15).
+Node ≥ 22.12 or ≥ 24 (CI and Docker use the LTS 26.13.0). Stay on Angular 21 (Angular 22 needs Node ≥ 24.15).
 
 ## Commands
 

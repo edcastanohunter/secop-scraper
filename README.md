@@ -9,7 +9,7 @@ Keycloak (Authorization Code + PKCE S256) · MSW · Vitest · Playwright.
 
 ## Requisitos
 
-- Node.js ≥ 22.12 o ≥ 24 (probado con 24.13). Angular 22 ya existe, pero pide Node ≥ 24.15;
+- Node.js ≥ 22.12 o ≥ 24 (LTS actual y usada en CI/Docker: 26.13.0). Angular 22 ya existe, pero pide Node ≥ 24.15;
   por eso el proyecto se queda en Angular 21.
 - Para el modo real: la API en `http://localhost:5146` y Keycloak en `http://localhost:8080`
   (realm `secopscrapper`, cliente público `secopscrapper-web` con PKCE y

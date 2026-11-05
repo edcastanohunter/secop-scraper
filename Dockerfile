@@ -1,6 +1,6 @@
 # SECOP Radar — imagen de producción: compila con Node y sirve el bundle estático con nginx (sin root).
 # Las URLs de la API y de Keycloak se incrustan al compilar (src/environments/environment.ts).
-FROM docker.io/library/node:24-alpine AS build
+FROM docker.io/library/node:26.13.0-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
